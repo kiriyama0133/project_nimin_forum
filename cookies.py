@@ -33,11 +33,12 @@ class Cookie(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, comment='ID')
     name = Column(String(7), nullable=False, comment='name')
     used = Column(BOOLEAN, default=False, comment='used')
+    email = Column(String(50), nullable=False, comment='email')
 
-# # 创建数据库引擎（SQLite 示例）
-# engine = create_engine('sqlite:///cookies.db')
-# # 创建表
-# Base.metadata.create_all(engine)
+# 创建数据库引擎（SQLite 示例）
+engine = create_engine('sqlite:///cookies.db')
+# 创建表
+Base.metadata.create_all(engine)
 
 #数据库连接配置
 DATABASE_URL = "sqlite:///cookies.db"
@@ -100,7 +101,8 @@ def add_cookie():
     try:
         new_cookie = Cookie(
             name=generate_random_string(),
-            used=False
+            used=False,
+            email="___"
         )
         session.add(new_cookie)
         session.commit()
