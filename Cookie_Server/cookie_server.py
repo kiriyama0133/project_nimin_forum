@@ -59,8 +59,10 @@ class CookieService(cookie_service_pb2_grpc.CookieServiceServicer):
             new_cookie = Cookie(name=self.generate_random_string(), email=request.email, used=False)
             session.add(new_cookie)
             session.commit()
+            logger.info(str(current_datetime) + " " + new_cookie.name + " " + "Cookie added successfully.")
             return cookie_service_pb2.CookieResponse(status="success", message="Cookie added successfully.")
         except SQLAlchemyError as e:
+            logger.warning(f"添加 Cookie 时出错: {str(e)}")
             session.rollback()
             return cookie_service_pb2.CookieResponse(status="error", message=str(e))
 
@@ -82,10 +84,13 @@ class CookieService(cookie_service_pb2_grpc.CookieServiceServicer):
             if cookie_to_delete:
                 session.delete(cookie_to_delete)
                 session.commit()
+                logger.info(str(current_datetime) + " " + request.name + " " + "Cookie deleted successfully.")
                 return cookie_service_pb2.CookieResponse(status="success", message="Cookie deleted successfully.")
             else:
+                logger.info(str(current_datetime) + " " + request.name + " " + "Cookie not found.")
                 return cookie_service_pb2.CookieResponse(status="error", message="Cookie not found.")
         except SQLAlchemyError as e:
+            logger.warning(f"删除 Cookie 时出错: {str(e)}")
             session.rollback()
             return cookie_service_pb2.CookieResponse(status="error", message=str(e))
     
@@ -94,10 +99,13 @@ class CookieService(cookie_service_pb2_grpc.CookieServiceServicer):
             # 查询 Cookie
             cookie = session.query(Cookie).filter(Cookie.name == request.name).first()
             if cookie:
+                logger.info(str(current_datetime) + " " + request.name + " " + "Cookie found.")
                 return cookie_service_pb2.CookieResponse(status="success", message="Cookie found.")
             else:
+                logger.info(str(current_datetime) + " " + request.name + " " + "Cookie not found.")
                 return cookie_service_pb2.CookieResponse(status="error", message="Cookie not found.")
         except SQLAlchemyError as e:
+            logger.warning(f"查询 Cookie 时出错: {str(e)}")
             return cookie_service_pb2.CookieResponse(status="error", message=str(e))
         
     # 定义查询函数
@@ -120,7 +128,6 @@ class CookieService(cookie_service_pb2_grpc.CookieServiceServicer):
             inspector = inspect(engine)
             tables = inspector.get_table_names()
             logger.info(str(current_datetime) + " " + f"Database tables: {tables}")
-
             # 执行一个简单的查询
             result = session.execute(text("SELECT 1"))
             logger.info(str(current_datetime) + " " + "Database connection successful.")
@@ -130,6 +137,50 @@ class CookieService(cookie_service_pb2_grpc.CookieServiceServicer):
             return cookie_service_pb2.CookieResponse(status="error", message="Connection failed.")
         finally:
             session.close()
+
+    
+    # 获取 Cookie 信息通过 ID
+    def GetCookieByID(self, request, context):
+        try:
+            cookie = session.query(Cookie).filter(Cookie.id == request.id).first()
+            if cookie:
+                logger.info(str(current_datetime) + " " + f"Cookie_GetCookieByID found: {cookie.name}")
+                return cookie_service_pb2.CookieResponse_ByID(name=cookie.name, email=cookie.email)
+            else:
+                logger.info(str(current_datetime) + " " + "Cookie_GetCookieByID not found.")
+                return cookie_service_pb2.CookieResponse_ByID(name="Not found", email="Not found")
+        except SQLAlchemyError as e:
+            logger.error(str(current_datetime) + " " + f"Error: {e}")
+            return cookie_service_pb2.CookieResponse_ByID(name="Error", email=str(e))
+
+    # 获取 Cookie 信息通过 Name
+    def GetCookieByName(self, request, context):
+        try:
+            cookie = session.query(Cookie).filter(Cookie.name == request.name).first()
+            if cookie:
+                logger.info(str(current_datetime) + " " + f"Cookie_GetCookieByName found: {cookie.id}")
+                return cookie_service_pb2.CookieResponse_ByName(id=cookie.id, email=cookie.email)
+            else:
+                logger.info(str(current_datetime) + " " + "Cookie_GetCookieByName not found.")
+                return cookie_service_pb2.CookieResponse_ByName(id=-1, email="Not found")
+        except SQLAlchemyError as e:
+            logger.error(str(current_datetime) + " " + f"Error: {e}")
+            return cookie_service_pb2.CookieResponse_ByName(id=-1, email=str(e))
+
+    # 获取 Cookie 信息通过 Email
+    def GetCookiesByEmail(self, request, context):
+        try:
+            cookies = session.query(Cookie).filter(Cookie.email == request.email).all()
+            if cookies:
+                result = [cookie_service_pb2.CookieInfo(id=cookie.id, name=cookie.name) for cookie in cookies]
+                logger.info(str(current_datetime) + " " + f"Cookie_GetCookiesByEmail found: {result}")
+                return cookie_service_pb2.CookieResponse_ByEmail(cookies=result)
+            else:
+                logger.info(str(current_datetime) + " " + "Cookie_GetCookiesByEmail not found.")
+                return cookie_service_pb2.CookieResponse_ByEmail(cookies=[])
+        except SQLAlchemyError as e:
+            logger.error(str(current_datetime) + " " + f"Error: {e}")
+            return cookie_service_pb2.CookieResponse_ByEmail(cookies=[])
 
         
 

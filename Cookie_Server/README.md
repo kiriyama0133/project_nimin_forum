@@ -6,6 +6,22 @@
 
 字段为ID (int), name(str) used(bool)，email，目前使用grpc来使用
 
+目前支持的接口有：
+
+AddCookie ：新增一个饼干
+
+DeleteCookie：删除饼干
+
+QueryCookie：name查询饼干是否存在
+
+TestCookie：测试服务器与数据库的连接
+
+GetCookieByID：通过ID获取name和email
+
+GetCookieByName:通过name获取ID和email
+
+GetCookiesByEmail：通过email获取ID和name(所有)
+
 
 
 [gRPC](http://www.oschina.net/p/grpc-framework)  是一个高性能、开源和通用的 **RPC 框架**，面向移动和 HTTP/2 设计。目前提供 C、Java 和 Go 语言版本，分别是：grpc, grpc-java, grpc-go. 其中 C 版本支持 C, C++, Node.js, Python, Ruby, Objective-C, PHP 和 C# 支持.

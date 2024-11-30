@@ -54,6 +54,21 @@ class CookieServiceStub(object):
                 request_serializer=cookie__service__pb2.CookieRequest_Test.SerializeToString,
                 response_deserializer=cookie__service__pb2.CookieResponse.FromString,
                 _registered_method=True)
+        self.GetCookieByID = channel.unary_unary(
+                '/cookie.CookieService/GetCookieByID',
+                request_serializer=cookie__service__pb2.CookieRequest_ByID.SerializeToString,
+                response_deserializer=cookie__service__pb2.CookieResponse_ByID.FromString,
+                _registered_method=True)
+        self.GetCookieByName = channel.unary_unary(
+                '/cookie.CookieService/GetCookieByName',
+                request_serializer=cookie__service__pb2.CookieRequest_ByName.SerializeToString,
+                response_deserializer=cookie__service__pb2.CookieResponse_ByName.FromString,
+                _registered_method=True)
+        self.GetCookiesByEmail = channel.unary_unary(
+                '/cookie.CookieService/GetCookiesByEmail',
+                request_serializer=cookie__service__pb2.CookieRequest_ByEmail.SerializeToString,
+                response_deserializer=cookie__service__pb2.CookieResponse_ByEmail.FromString,
+                _registered_method=True)
 
 
 class CookieServiceServicer(object):
@@ -83,6 +98,24 @@ class CookieServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetCookieByID(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetCookieByName(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetCookiesByEmail(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_CookieServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -105,6 +138,21 @@ def add_CookieServiceServicer_to_server(servicer, server):
                     servicer.TestCookie,
                     request_deserializer=cookie__service__pb2.CookieRequest_Test.FromString,
                     response_serializer=cookie__service__pb2.CookieResponse.SerializeToString,
+            ),
+            'GetCookieByID': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetCookieByID,
+                    request_deserializer=cookie__service__pb2.CookieRequest_ByID.FromString,
+                    response_serializer=cookie__service__pb2.CookieResponse_ByID.SerializeToString,
+            ),
+            'GetCookieByName': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetCookieByName,
+                    request_deserializer=cookie__service__pb2.CookieRequest_ByName.FromString,
+                    response_serializer=cookie__service__pb2.CookieResponse_ByName.SerializeToString,
+            ),
+            'GetCookiesByEmail': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetCookiesByEmail,
+                    request_deserializer=cookie__service__pb2.CookieRequest_ByEmail.FromString,
+                    response_serializer=cookie__service__pb2.CookieResponse_ByEmail.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -215,6 +263,87 @@ class CookieService(object):
             '/cookie.CookieService/TestCookie',
             cookie__service__pb2.CookieRequest_Test.SerializeToString,
             cookie__service__pb2.CookieResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetCookieByID(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cookie.CookieService/GetCookieByID',
+            cookie__service__pb2.CookieRequest_ByID.SerializeToString,
+            cookie__service__pb2.CookieResponse_ByID.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetCookieByName(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cookie.CookieService/GetCookieByName',
+            cookie__service__pb2.CookieRequest_ByName.SerializeToString,
+            cookie__service__pb2.CookieResponse_ByName.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetCookiesByEmail(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/cookie.CookieService/GetCookiesByEmail',
+            cookie__service__pb2.CookieRequest_ByEmail.SerializeToString,
+            cookie__service__pb2.CookieResponse_ByEmail.FromString,
             options,
             channel_credentials,
             insecure,
