@@ -4,4 +4,13 @@
 
 目前可以实现生成，插入，删除，查询饼干，以及查看饼干的使用情况。
 
-字段为ID (int), name(str) used(bool)
+字段为ID (int), name(str) used(bool)，访问通过Flask的后端进行，通过传入
+
+/add 添加
+
+/query/<_name> 查询
+
+/delate/<_name>删除
+
+/test 检查数据库连接情况
+

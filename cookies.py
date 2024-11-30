@@ -73,7 +73,7 @@ if check_db_connection():
 else:
     logger.error(str(current_datetime)+" "+"Database is not available.")
 
-
+@app.route('/delate/<_name>')
 # 删除操作
 def delete_cookie(_name):
     try:
@@ -81,8 +81,10 @@ def delete_cookie(_name):
         print(user_to_delete)
         session.delete(user_to_delete)
         session.commit()
+        return "yes"
     except Exception as e:
         logger.warning(e)
+        return "error"
 
 def generate_random_string(length=7):
     # 生成一个包含大小写字母的字符串
