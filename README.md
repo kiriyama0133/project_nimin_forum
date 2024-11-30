@@ -6,6 +6,8 @@
 
 字段为ID (int), name(str) used(bool)，访问通过Flask的后端进行，通过传入
 
+<_name，通过HTTP协议来访问
+
 /add 添加
 
 /query/<_name> 查询
