@@ -1,0 +1,2 @@
+obj\Debug\net8.0/CookieService.cs \
+obj\Debug\net8.0/CookieServiceGrpc.cs: cookie_service.proto
