@@ -12,10 +12,7 @@ from logging.handlers import RotatingFileHandler
 from sqlalchemy.exc import OperationalError
 from datetime import datetime
 from concurrent import futures
-<<<<<<< HEAD
 from grpc_reflection.v1alpha import reflection
-=======
->>>>>>> 8ac56a973b23b5c4770410c206cef32d3f68e3eb
 import time
 # 获取当前日期和时间
 current_datetime = datetime.now()
@@ -186,7 +183,6 @@ class CookieService(cookie_service_pb2_grpc.CookieServiceServicer):
             logger.error(str(current_datetime) + " " + f"Error: {e}")
             return cookie_service_pb2.CookieResponse_ByEmail(cookies=[])
 
-<<<<<<< HEAD
 def serve():
     # 创建 gRPC 服务器
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -210,26 +206,12 @@ def serve():
     server.start()
 
     # 保持服务运行
-=======
-        
-
-# Server Setup
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    cookie_service_pb2_grpc.add_CookieServiceServicer_to_server(CookieService(), server)
-    server.add_insecure_port('[::]:50051')
-    print("Server started on port 50051")
-    server.start()
->>>>>>> 8ac56a973b23b5c4770410c206cef32d3f68e3eb
     try:
         while True:
             time.sleep(86400)
     except KeyboardInterrupt:
         server.stop(0)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 8ac56a973b23b5c4770410c206cef32d3f68e3eb
 if __name__ == '__main__':
     serve()
