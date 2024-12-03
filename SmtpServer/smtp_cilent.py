@@ -4,7 +4,7 @@ import smtp_service_pb2_grpc
 
 def send_email():
     # Create gRPC channel and stub
-    channel = grpc.insecure_channel('localhost:50052')
+    channel = grpc.insecure_channel('172.18.0.2:50052')
     stub = smtp_service_pb2_grpc.SMTPStub(channel)
     
     # Create request object
