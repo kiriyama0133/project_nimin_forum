@@ -8,7 +8,7 @@ def send_email():
     stub = smtp_service_pb2_grpc.SMTPStub(channel)
     
     # Create request object
-    request = smtp_service_pb2.SendMailRequest(email="202331094154@stu.swpu.edu.cn")
+    request = smtp_service_pb2.SendMailRequest(email="!")
     
     # Call the SendMail method
     response = stub.send_email(request)

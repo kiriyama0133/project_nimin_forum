@@ -30,7 +30,7 @@ class SmtpService(smtp_service_pb2_grpc.SMTPServicer):
         smtp_server = "smtp.qq.com"
         port = 587  # SMTP port
         sender_email = "kiriyama_0133@qq.com"  # Sender's email
-        password = "djtdqwsznpizfddf"  # Sender's email password
+        password = "!"  # Sender's email password
         receiver_email = email  # Receiver's email
 
         try:
