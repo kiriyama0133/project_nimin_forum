@@ -1,0 +1,24 @@
+apiVersion: apps/v1  # API 版本。Deployment 属于 apps/v1 API 组。
+kind: Deployment  # 定义的对象类型是 Deployment，表示一个部署，管理应用的多个副本。
+metadata:
+  name: smtp-service  # 部署的名称。此处为 "smtp-service"。
+spec:
+  replicas: 5  # 指定副本数量，表示部署5个 Pod。你可以根据需要增加副本数来实现负载均衡。
+  
+  # 选择器，确定哪些 Pod 属于这个 Deployment。
+  selector:
+    matchLabels:
+      app: smtp-service  # 选择标签为 "app=smtp-service" 的 Pod。即该部署管理具有此标签的 Pod。
+
+  # Pod 模板，定义了部署时要创建的 Pod 的属性。
+  template:
+    metadata:
+      labels:
+        app: smtp-service  # 给 Pod 打上标签 "app=smtp-service"，用于与 Deployment 关联。
+    spec:
+      containers:
+        - name: smtp-service  # 容器的名称。在 Pod 中运行的容器的名称。这里是 "smtp-service"。
+          image: smtp_service:latest  # 容器镜像。请替换为你在 Docker Hub 上推送的镜像名称和标签。
+          ports:
+            - containerPort: 50052  # 暴露容器内的端口 50052。此端口将用于通信，例如通过 gRPC 进行服务调用。
+

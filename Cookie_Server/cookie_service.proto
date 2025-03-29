@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package Cookies;
+
+service CookieService {
+  rpc AddCookie (CookieRequest_Add) returns (CookieResponse);
+  rpc DeleteCookie (CookieRequest_Delete) returns (CookieResponse);
+  rpc QueryCookie (CookieRequest_Query) returns (CookieResponse);
+  rpc TestCookie (CookieRequest_Test) returns (CookieResponse);
+  rpc GetCookieByID (CookieRequest_ByID) returns (CookieResponse_ByID);
+  rpc GetCookieByName (CookieRequest_ByName) returns (CookieResponse_ByName);
+  rpc GetCookiesByEmail (CookieRequest_ByEmail) returns (CookieResponse_ByEmail);
+  rpc Login(LoginInfomation) returns (LoginResponse);
+  rpc Rigister(RigisterInfomation) returns (RigisterResponse);
+  rpc SendMail_C(SendMailRequest) returns (SendMailResponse);
+  rpc redisAdd(RedisAdd) returns (RedisAddResponse);
+  rpc redisGet(RedisGet) returns (RedisGetResponse);
+}
+
+message CookieRequest_Add {
+  string email = 1;
+}
+
+message CookieRequest_Query {
+  string name = 1;
+}
+
+ message CookieRequest_Delete {
+  string name = 1;
+}
+
+message CookieRequest_Test {
+
+}
+
+// 请求：通过 ID 获取 Cookie 信息
+message CookieRequest_ByID {
+  int32 id = 1;
+}
+
+message CookieResponse {
+  string status = 1;
+  string message = 2;
+}
+
+// 响应：通过 ID 返回 Cookie 信息
+message CookieResponse_ByID {
+  string name = 1;
+  string email = 2;
+}
+
+// 请求：通过 Name 获取 Cookie 信息
+message CookieRequest_ByName {
+  string name = 1;
+}
+
+// 响应：通过 Name 返回 Cookie 信息
+message CookieResponse_ByName {
+  int32 id = 1;
+  string email = 2;
+}
+
+// 请求：通过 Email 获取所有 Cookies 信息
+message CookieRequest_ByEmail {
+  string email = 1;
+}
+
+// 响应：通过 Email 返回多个 Cookie 名称和 ID
+message CookieResponse_ByEmail {
+  repeated CookieInfo cookies = 1;
+}
+
+// Cookie 信息格式
+message CookieInfo {
+  int32 id = 1;
+  string name = 2;
+}
+
+message LoginInfomation {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string status = 1;
+  string message = 2;
+}
+
+message RigisterInfomation {
+  string email = 1;
+  string password = 2;
+}
+message RigisterResponse {
+  string status = 1;
+  string message = 2;
+}
+
+message SendMailRequest {
+  string email = 1;
+}
+
+message SendMailResponse {
+  string status = 1;
+}
+message RedisAdd {
+  string email =1;
+  string validation_code = 2;
+}
+
+message RedisAddResponse {
+  string status = 1;
+}
+
+message RedisGet {
+  string request = 1;
+}
+
+message RedisGetResponse {
+  string status = 1;
+  string message = 2;
+}

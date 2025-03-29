@@ -1,0 +1,13 @@
+syntax = "proto3";
+package smtp;
+service SMTP {
+    rpc SendMail(SendMailRequest) returns (SendMailResponse) {}
+}
+message SendMailRequest {
+    string email = 1;
+}
+
+message SendMailResponse {
+    string status = 1;
+    string message = 2;
+}
