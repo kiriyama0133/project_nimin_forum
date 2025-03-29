@@ -1,0 +1,127 @@
+<script setup lang="ts">
+import routecard from '../components/routecard.vue';
+import { ref, onBeforeUnmount, watch } from 'vue';
+import gsap from "gsap";
+import {useCounterStore} from '../stores/login_register'
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
+import { useRouter } from 'vue-router';
+import routate from '../components/routate.vue';
+import loginform from '../components/loginform.vue';
+const store = useCounterStore();
+// 控制骨架屏显示状态
+const router = useRouter();
+// 注册 GSAP 插件
+gsap.registerPlugin(MotionPathPlugin);
+let width = ref(0);
+let height = ref(0);
+let centerX = ref(0);
+let centerY = ref(0);
+router.push({
+    path: '/login'
+});
+function UpdatePageAnime(){
+  gsap.to('.router', {
+    duration: 0.5,
+    ease: "none",
+    x:1000,
+  })
+}
+
+function UpdatePageAnime_R(){
+  console.log("back")
+  gsap.to('.router', {
+    duration: 0.5,
+    ease: "none",
+    x:0,
+  })
+}
+
+watch(()=>store.homepage, (newValue, _) => {
+    if (newValue=='register') {
+      console.log("ok!")
+        UpdatePageAnime();
+
+        setTimeout(() => {
+          router.push({
+              path: '/register'
+          });
+        UpdatePageAnime_R();
+        }, 500);  
+    }
+
+    if(newValue=='login'){
+      UpdatePageAnime();
+      setTimeout(() => {
+          router.push({
+              path: '/login'
+          });
+        UpdatePageAnime_R();
+        }, 500);
+    }
+});
+// 更新窗口尺寸和圆心坐标
+function updateDimensions() {
+    width.value = window.innerWidth;
+    height.value = window.innerHeight;
+    centerX.value = width.value / 2; // 圆心的 X 坐标
+    centerY.value = height.value / 2; // 圆心的 Y 坐标
+}
+
+// 监听窗口大小变化
+window.addEventListener('resize', () => {
+    updateDimensions(); // 更新尺寸
+});
+
+// 清理事件监听器
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', updateDimensions);
+});
+</script>
+
+<template>
+    <div class="cursor-window overflow-hidden">
+        <div class="bg-white opacity-40">
+            <div class="bg-[url('src/assets/bg/marshmary.jpg')] bg-cover w-screen h-screen">
+                <div class="grid grid-cols-12">
+                    <div class="route-div col-span-7 overflow-hidden">
+                        <routecard id="orbit" class="orbit rotate-x-50 rotate-z-45 transition-normal duration-300 hover:rotate-x-0 hover:rotate-z-0"></routecard>
+                       
+                        <routate class="rotate"/>
+                         <div class="center backdrop-blur-md w-50 h-50 rounded-full overflow-hidden shadow-2xl">
+                            <img src="../assets/bg/200h.gif" draggable="false" class="opacity-65">
+                        </div> 
+                    
+                    </div>
+                <div class="col-span-2 bg-[linear-gradient(to_left,rgba(255,255,255,0.9),rgba(255,255,255,0))]"></div>
+                <div class="login col-span-3 w-full bg-white opacity-70 
+                    backdrop-blur-2xl ease-in-out h-screen transition duration-500 
+                    hover:opacity-80 drop-shadow-2xl">
+                    <div id="router" class="router">
+                        <loginform></loginform>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+.center{
+    position:absolute
+}
+.orbit{
+    position: absolute;
+    top:20%
+}
+.rotate {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+.cursor-window {
+    cursor: url('../assets/ani/select.png'), pointer;
+}
+</style>
