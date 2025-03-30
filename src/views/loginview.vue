@@ -2,13 +2,11 @@
 import routecard from '../components/routecard.vue';
 import { onMounted, ref, watch } from 'vue';
 import {useCounterStore} from '../stores/login_register'
-// import { useRouter } from 'vue-router';
 import routate from '../components/routate.vue';
 import login from './login.vue';
 import register from './register.vue';
 const store = useCounterStore();
 import loading from '../components/loading.vue';
-// const router = useRouter();
 let screenWidth = ref(window.innerWidth)
 onMounted(() => {window.addEventListener('resize', updateScreenWidth);});
 let form = ref('login')

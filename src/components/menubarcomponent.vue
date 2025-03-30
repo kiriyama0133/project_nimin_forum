@@ -33,8 +33,8 @@ const toggle = (event:any) => {
     <template #end>
         <div class="flex items-center gap-2">
             <div class="flex gap-2">
-                <Button variant="outlined" raised style="font-size: 10px;" class="text w-23 h-8" label="饼干管理" icon="pi pi-user" />
                 <Button variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="收藏" icon="pi pi-star" />
+                <Button variant="outlined" raised style="font-size: 10px;" class="text w-23 h-8" label="饼干管理" icon="pi pi-user" />
             </div>
 
         <div id="user-info" class="">

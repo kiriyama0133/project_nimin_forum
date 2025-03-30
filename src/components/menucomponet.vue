@@ -169,6 +169,39 @@ const items = ref([
         ]
     },
     {
+    label: '生活',
+    items: [
+        {
+            label: '露营',
+            icon: 'pi pi-cog'
+        },
+        {
+            label: '育儿',
+            icon: 'pi pi-cog'
+        },
+        {
+            label: '自救互助',
+            icon: 'pi pi-cog'
+        },
+        {
+            label: '料理',
+            icon: 'pi pi-cog'
+        },
+        {
+            label: '体育',
+            icon: 'pi pi-cog'
+        },
+        {
+            label: '学业',
+            icon: 'pi pi-cog'
+        },
+        {
+            label: '日记',
+            icon: 'pi pi-cog'
+        },
+        ]
+    },
+    {
     label: '应用设置',
     icon: 'pi pi-cog'
     },

@@ -4,10 +4,14 @@ import loading from '../components/loading.vue';
 import menubarcomponent from '../components/menubarcomponent.vue';
 import 'primeicons/primeicons.css';
 import menucomponet from '../components/menucomponet.vue';
+import { useRouter } from 'vue-router';
+import Drawer from 'primevue/drawer';
+import { useDrawerStore} from '../stores/drawer'
+const drawerStore = useDrawerStore()
+const router = useRouter()
 let isloading = ref(true);
-
 let screenWidth = ref(window.innerWidth)
-onMounted(() => {window.addEventListener('resize', updateScreenWidth);});
+onMounted(() => {window.addEventListener('resize', updateScreenWidth);router.push('/Introduction')});
 function updateScreenWidth() {screenWidth.value = window.innerWidth;console.log(screenWidth.value) }// 更新屏幕宽度
  
 function check_loading(){
@@ -41,20 +45,29 @@ onMounted(() => {
          <div class="col-12">
             <menubarcomponent/>
          </div>
+         <div class="relative">
+            <Button v-if="screenWidth < 430" class="drawer-btn rounded-full w-16 bg-pink-100/0" @click="drawerStore.Drawervisible = true">
+               <i class="pi pi-arrow-right"/>
+            </Button>
+         </div>
    </div>
-
    <div class="flex h-full" style="z-index: 80;">
       <div class="scroll-custom overflow-x-hidden overflow-y-scroll " v-if="screenWidth > 425">
          <menucomponet/>
       </div>
-      <div class="p-4 w-full overflow-x-hidden overflow-y-scroll">
-         <div alt="内容展示页面" class="">
-            <span>123</span>
+      <div class="p-4 w-full h-full overflow-y-scroll scroll-custom ">
+         <div alt="内容展示页面" class="router-div h-full">
+            <router-view />
          </div>
       </div>
    </div>
+
    <loading v-if="isloading" id="loading"/>
+   <Drawer class="scroll-custom" v-model:visible="drawerStore.Drawervisible" header="Drawer">
+      <menucomponet/>
+   </Drawer>
 </body>
+
 </template>
 
 <style scoped lang="sass">
@@ -73,4 +86,13 @@ onMounted(() => {
     background-color: #e5e7eb;
     border-radius: 4px;
   }
+body{
+   position: relative;
+}
+.drawer-btn {
+  position: fixed;
+  top: 20%;
+  left: -5%;
+  z-index: 90;
+}
 </style>

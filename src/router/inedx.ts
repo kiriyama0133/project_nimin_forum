@@ -21,12 +21,20 @@ const router = createRouter({
       path: '/homepage',
       name: '主界面',
       component: () => import('../views/homepage.vue'),
+      children: [
+        {
+          path: '/Introduction',
+          name: '介绍',
+          component: () => import('../views/Introduction.vue'),
+        }
+      ]
     },
     {
       path: '/loginview',
       name: '主页',
       component: () => import('../views/loginview.vue'),
     },
+    
   ],
 });
 export default router;
