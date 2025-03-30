@@ -1,11 +1,11 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL), // 使用 history 模式
+  history: createWebHistory(import.meta.env.BASE_URL), // 使用 history 模式
   routes: [
     {
       path: '/',
       name: '默认路径',
-      redirect: '/login',
+      redirect: '/loginview',
     },
     {
       path: '/login',
@@ -18,9 +18,9 @@ const router = createRouter({
       component: () => import('../views/register.vue'),
     },
     {
-      path: '/home',
-      name: '主页',
-      component: () => import('../views/home.vue'),
+      path: '/homepage',
+      name: '主界面',
+      component: () => import('../views/homepage.vue'),
     },
     {
       path: '/loginview',

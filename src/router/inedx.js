@@ -18,9 +18,9 @@ const router = createRouter({
             component: () => import('../views/register.vue'),
         },
         {
-            path: '/home',
+            path: '/homepage',
             name: '主页',
-            component: () => import('../views/home.vue'),
+            component: () => import('../views/homepage.vue'),
         },
     ],
 });

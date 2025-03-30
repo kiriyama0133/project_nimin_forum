@@ -9,9 +9,22 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import Vue3Lottie from 'vue3-lottie'
 const pinia = createPinia();
 const app = createApp(App);
+import PrimeVue from 'primevue/config';
+import aura from '@primeuix/themes/aura';
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
+app.use(PrimeVue, {
+  theme: {
+      preset: aura,
+      options: {
+        prefix: 'p',
+        darkModeSelector: 'system',
+        cssLayer: false
+    }
+  }
+});
+app.use(PrimeVue);
 app.use(Vue3Lottie);
 app.use(router);
 app.use(ElementPlus);

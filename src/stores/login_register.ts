@@ -7,6 +7,7 @@ export const useCounterStore = defineStore('user', () => {
     username: 'root',
     password: '123456',
   });
+  let loading = ref<boolean>(false);
   let homepage = ref<string>('login')
   const alert_sucess = ref<boolean>(false);
   const alert_error = ref<boolean>(false);
@@ -22,5 +23,6 @@ export const useCounterStore = defineStore('user', () => {
     alert_info,
     is_login,
     homepage,
+    loading,
   };
 });

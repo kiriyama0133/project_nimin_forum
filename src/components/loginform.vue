@@ -1,10 +1,16 @@
 <script lang="ts" setup>
 import {useCounterStore} from '../stores/login_register'
 const store = useCounterStore()
+import { useRouter } from 'vue-router';
+const router = useRouter()
 function rigister() {
   console.log(store.homepage);
   store.homepage='register'
   console.log(store.homepage);
+}
+function handle() {
+  store.loading = true
+  router.push('/homepage')
 }
 </script>
 <template>
@@ -35,7 +41,7 @@ function rigister() {
 
     <div class="flex justify-between items-center m-5">
     <!-- 登录按钮 -->
-    <button
+    <button @click="handle"
       class="btn w-15 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition duration-300"
     >
       登录
