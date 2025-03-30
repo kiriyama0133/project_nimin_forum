@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import loading from '../components/loading.vue';
-import Menubar from 'primevue/menubar';
-import Menu from 'primevue/menu';
+import menubarcomponent from '../components/menubarcomponent.vue';
 import 'primeicons/primeicons.css';
+import menucomponet from '../components/menucomponet.vue';
 let isloading = ref(true);
+
 let screenWidth = ref(window.innerWidth)
 onMounted(() => {window.addEventListener('resize', updateScreenWidth);});
 function updateScreenWidth() {screenWidth.value = window.innerWidth;console.log(screenWidth.value) }// 更新屏幕宽度
@@ -32,154 +33,44 @@ onMounted(() => {
    check_loading();
 });
 
-const items = ref([
-    {
-        label: 'Documents',
-        items: [
-            {
-                label: 'New',
-                icon: 'pi pi-plus'
-            },
-            {
-                label: 'Search',
-                icon: 'pi pi-search'
-            }
-        ]
-    },
-    {
-        label: 'Profile',
-        items: [
-            {
-                label: 'Settings',
-                icon: 'pi pi-cog'
-            },
-            {
-                label: 'Logout',
-                icon: 'pi pi-sign-out'
-            }
-        ]
-    },
-    {
-        label: 'Home',
-        icon: 'pi pi-home'
-    },
-    {
-        label: 'Features',
-        icon: 'pi pi-star'
-    },
-    {
-        label: 'Projects',
-        icon: 'pi pi-search',
-        items: [
-            {
-                label: 'Components',
-                icon: 'pi pi-bolt'
-            },
-            {
-                label: 'Blocks',
-                icon: 'pi pi-server'
-            },
-            {
-                label: 'UI Kit',
-                icon: 'pi pi-pencil'
-            },
-            {
-                label: 'Templates',
-                icon: 'pi pi-palette',
-                items: [
-                    {
-                        label: 'Apollo',
-                        icon: 'pi pi-palette'
-                    },
-                    {
-                        label: 'Ultima',
-                        icon: 'pi pi-palette'
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        label: 'Contact',
-        icon: 'pi pi-envelope'
-    }
-
-]);
-const items_ = ref([
-   
-    {
-        label: 'Home',
-        icon: 'pi pi-home'
-    },
-    {
-        label: 'Features',
-        icon: 'pi pi-star'
-    },
-    {
-        label: 'Projects',
-        icon: 'pi pi-search',
-        items: [
-            {
-                label: 'Components',
-                icon: 'pi pi-bolt'
-            },
-            {
-                label: 'Blocks',
-                icon: 'pi pi-server'
-            },
-            {
-                label: 'UI Kit',
-                icon: 'pi pi-pencil'
-            },
-            {
-                label: 'Templates',
-                icon: 'pi pi-palette',
-                items: [
-                    {
-                        label: 'Apollo',
-                        icon: 'pi pi-palette'
-                    },
-                    {
-                        label: 'Ultima',
-                        icon: 'pi pi-palette'
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        label: 'Contact',
-        icon: 'pi pi-envelope'
-    }
-]);
 </script>
 <template>
+<body class="overflow-hidden h-screen" style="z-index: 90;">
    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no,maximum-scale=1"> <!-- 禁止缩放 以及允许滚动-->
    <div class="container-bluid">
-      <div class="row">
          <div class="col-12">
-            <Menubar :model="items_" >
-               
-               <template #end>
-                  <div class="flex items-center gap-5">
-                     <span class=" bg-amber-100">1</span>
-                     <span>2</span>
-                  </div>
-               </template>
-            </Menubar>
+            <menubarcomponent/>
+         </div>
+   </div>
+
+   <div class="flex h-full" style="z-index: 80;">
+      <div class="scroll-custom overflow-x-hidden overflow-y-scroll " v-if="screenWidth > 425">
+         <menucomponet/>
+      </div>
+      <div class="p-4 w-full overflow-x-hidden overflow-y-scroll">
+         <div alt="内容展示页面" class="">
+            <span>123</span>
          </div>
       </div>
    </div>
-   <div class="container-bluid">
-      <div class="row">
-         <div class="col-1" v-if="screenWidth > 425">
-            <Menu :model="items" class=" w-50" />
-         </div>
-      </div>
-    </div>
-    <loading v-if="isloading" id="loading"/>
+   <loading v-if="isloading" id="loading"/>
+</body>
 </template>
 
 <style scoped lang="sass">
 @import "bootstrap/scss/bootstrap";
+</style>
+<style lang="css">
+.scroll-custom::-webkit-scrollbar {
+    width: 4px;
+    height: 8px;
+  }
+  .scroll-custom::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+    border-radius: 4px;
+  }
+  .scroll-custom::-webkit-scrollbar-track {
+    background-color: #e5e7eb;
+    border-radius: 4px;
+  }
 </style>
