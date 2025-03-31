@@ -7,10 +7,15 @@ import InputGroup from 'primevue/inputgroup';
 import InputText from 'primevue/inputtext';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Popover from 'primevue/overlaypanel'; // Popover 实际是 OverlayPanel
+import { useRouter } from 'vue-router';
+const router = useRouter()
 const items_ = ref([
    {
        label: '主页',
-       icon: 'pi pi-home'
+       icon: 'pi pi-home',
+       command:()=>{
+        router.push('/Introduction')
+    }
    },
    {
        label: '搜索',
@@ -19,11 +24,6 @@ const items_ = ref([
 ]);
 
 const op = ref();
-const members = ref([
-    { name: 'Amy Elsner', image: 'amyelsner.png', email: 'amy@email.com', role: 'Owner' },
-    { name: 'Bernardo Dominic', image: 'bernardodominic.png', email: 'bernardo@email.com', role: 'Editor' },
-    { name: 'Ioni Bowcher', image: 'ionibowcher.png', email: 'ioni@email.com', role: 'Viewer' }
-]);
 const toggle = (event:any) => {
     op.value.toggle(event);
 }
@@ -33,17 +33,23 @@ const toggle = (event:any) => {
     <template #end>
         <div class="flex items-center gap-2">
             <div class="flex gap-2">
-                <Button variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="收藏" icon="pi pi-star" />
-                <Button variant="outlined" raised style="font-size: 10px;" class="text w-23 h-8" label="饼干管理" icon="pi pi-user" />
+                <Button  :pt="{
+                    root:{class: 'btn-cursor'},
+                }" variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="收藏" icon="pi pi-star" />
+                <Button :pt="{
+                    root:{class: 'btn-cursor'}
+                }" variant="outlined" raised style="font-size: 10px;" class="text w-23 h-8" label="饼干管理" icon="pi pi-user" />
             </div>
 
         <div id="user-info" class="">
             <div class="card flex justify-center">
-                <Button variant="outlined" raised class="w-18 h-8" style="font-size: 10px;" type="button" icon="pi pi-user" label="用户" @click="toggle" />
+                <Button :pt="{
+                    root:{class: 'btn-cursor'}
+                }" variant="outlined" raised class="w-18 h-8" style="font-size: 10px;" type="button" icon="pi pi-user" label="用户" @click="toggle" />
                     <Popover :base-z-index="90" ref="op">
-                        <div class="flex flex-col gap-4 w-[16rem]">
+                        <div class="flex flex-col gap-1 w-[16rem]">
                             <div>
-                                <span class="font-medium block mb-2">Share this document</span>
+                                <span class="font-medium block mb-2">分享这个贴</span>
                                 <InputGroup>
                                     <InputText value="https://primevue.org/12323ff26t2g243g423g234gg52hy25XADXAG3" readonly class="w-[16rem]"></InputText>
                                     <InputGroupAddon>
@@ -52,26 +58,20 @@ const toggle = (event:any) => {
                                 </InputGroup>
                             </div>
                             <div>
-                                <span class="font-medium block mb-2">Invite Member</span>
-                                <InputGroup>
-                                    <InputText disabled />
-                                    <Button label="Invite" icon="pi pi-users"></Button>
-                                </InputGroup>
                             </div>
                             <div>
                                 <span class="font-medium block mb-2">用户</span>
-                                <ul class="list-none p-0 m-0 flex flex-col gap-4">
-                                    <li v-for="member in members" :key="member.name" class="flex items-center gap-2">
-                                        <img :src="`https://primefaces.org/cdn/primevue/images/avatar/${member.image}`" style="width: 32px" />
-                                        <div>
-                                            <span class="font-medium">{{ member.name }}</span>
-                                            <div class="text-sm text-surface-500 dark:text-surface-400">{{ member.email }}</div>
-                                        </div>
-                                        <div class="flex items-center gap-2 text-surface-500 dark:text-surface-400 ml-auto text-sm">
-                                            <span>{{ member.role }}</span>
-                                        </div>
-                                    </li>
-                                </ul>
+                                <div class="flex flex-col justity-center gap-2 items-center">
+                                    <Button variant="outlined" 
+                                    raised style="font-size: 16px;" class="text w-30 h-8" 
+                                    label="我的回复" icon="pi pi-star" />
+                                    <Button variant="outlined" 
+                                    raised style="font-size: 16px;" class="text w-30 h-8" 
+                                    label="我的收藏" icon="pi pi-star" />
+                                    <Button variant="outlined" 
+                                    raised style="font-size: 16px;" class="text w-30 h-8" 
+                                    label="我的账号" icon="pi pi-star" />
+                                </div>
                             </div>
                         </div>
                     </Popover>
@@ -84,5 +84,11 @@ const toggle = (event:any) => {
 <style>
 .text{
     font-size: 20px;
+}
+.btn-cursor {
+cursor: url('../assets/ani/link_2.png'), pointer;
+}
+.p-button, .p-button * {
+  cursor: url('@/assets/ani/link_2.png'), pointer !important;
 }
 </style>

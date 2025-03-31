@@ -77,17 +77,18 @@ onMounted(() => {
 .scroll-custom::-webkit-scrollbar {
     width: 4px;
     height: 8px;
-  }
-  .scroll-custom::-webkit-scrollbar-thumb {
-    background-color: #4b5563;
-    border-radius: 4px;
-  }
-  .scroll-custom::-webkit-scrollbar-track {
-    background-color: #e5e7eb;
-    border-radius: 4px;
+}
+.scroll-custom::-webkit-scrollbar-thumb {
+   background-color: #4b5563;
+   border-radius: 4px;
+}
+.scroll-custom::-webkit-scrollbar-track {
+   background-color: #e5e7eb;
+   border-radius: 4px;
   }
 body{
-   position: relative;
+   position: relative; 
+   cursor: url('@/assets/ani/select_2.png'), pointer;
 }
 .drawer-btn {
   position: fixed;
