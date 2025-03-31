@@ -2,6 +2,10 @@
 import { ref } from 'vue';
 import 'primeicons/primeicons.css';
 import Menu from 'primevue/menu';
+// import { useCounterStore } from '../stores/login_register';
+// const store = useCounterStore();
+import { useRouter } from 'vue-router';
+const router = useRouter()
 import PanelMenu from 'primevue/panelmenu';
 const items = ref([
     {
@@ -9,11 +13,17 @@ const items = ref([
         items: [
             {
                 label: '综合板',
-                icon: 'pi pi-plus'
+                icon: 'pi pi-plus',
+                command:()=>{
+                    router.push('/Classification/total')
+                }
             },
             {
                 label: '时间板',
-                icon: 'pi pi-search'
+                icon: 'pi pi-search',
+                command:()=>{
+                    router.push('/Classification/time')
+                }
             }
         ]
     },
@@ -22,7 +32,10 @@ const items = ref([
         items: [
             {
                 label: '婆罗门',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    router.push('/subculture')
+                }
             },
             {
                 label: '漫画',
@@ -221,3 +234,5 @@ const items = ref([
 </Menu> 
 <div class="h-12"></div>
 </template>
+<style scoped>
+</style>

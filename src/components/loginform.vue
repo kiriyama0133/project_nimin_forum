@@ -61,15 +61,13 @@ function handle() {
       重置
     </button>
   </div>
-
-  
 </div>
 </template>
 <style scoped>
 .text {
-    cursor: url('../assets/ani/text.png'), pointer;
+    cursor: url('../assets/ani/text_2.png'), pointer;
 }
 .btn{
-    cursor: url('../assets/ani/link.png'), pointer;
+    cursor: url('../assets/ani/link_2.png'), pointer;
 }
 </style>

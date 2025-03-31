@@ -26,7 +26,27 @@ const router = createRouter({
           path: '/Introduction',
           name: '介绍',
           component: () => import('../views/Introduction.vue'),
-        }
+        },
+        {
+          path: '/contentpage',
+          name: '内容页',
+          component: () => import('../views/contentpage.vue'),
+        },
+        {
+          path: '/Classification/time',
+          name: '时间',
+          component: () => import('../views/Fenlei/time.vue'),
+        },
+        {
+          path: '/Classification/total',
+          name: '综合',
+          component: () => import('../views/Fenlei/total.vue'),
+        },
+        {
+          path: '/subculture',
+          name: '亚文化',
+          component: () => import('../views/pages/subculture.vue'),
+        },
       ]
     },
     {
@@ -34,7 +54,6 @@ const router = createRouter({
       name: '主页',
       component: () => import('../views/loginview.vue'),
     },
-    
   ],
 });
 export default router;

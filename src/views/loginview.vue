@@ -88,7 +88,7 @@ watch(()=>store.homepage, (newValue, _) => {
   z-index: 10;
 }
 .cursor-window {
-    cursor: url('../assets/ani/select.png'), pointer;
+    cursor: url('../assets/ani/select_2.png'), pointer;
 }
 
 </style>
