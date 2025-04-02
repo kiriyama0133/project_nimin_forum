@@ -7,8 +7,10 @@ import InputGroup from 'primevue/inputgroup';
 import InputText from 'primevue/inputtext';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Popover from 'primevue/overlaypanel'; // Popover 实际是 OverlayPanel
+import ToggleSwitch from 'primevue/toggleswitch';
 import { useRouter } from 'vue-router';
 const router = useRouter()
+const checked = ref(false);
 const items_ = ref([
    {
        label: '主页',
@@ -27,12 +29,23 @@ const op = ref();
 const toggle = (event:any) => {
     op.value.toggle(event);
 }
+function toggleDarkMode() {
+    document.documentElement.classList.toggle('darkmode');
+}
 </script>
 <template>
 <Menubar :model="items_" breakpoint="520px" :base-z-index="90">
+  
     <template #end>
         <div class="flex items-center gap-2">
-            <div class="flex gap-2">
+            <div class="flex gap-2 items-center">
+                
+                    <ToggleSwitch v-model="checked" @click="toggleDarkMode()">
+                        <template #handle="{ checked }">
+                <i :class="['!text-xs pi', { 'pi-moon': checked, 'pi-sun': !checked }]" />
+            </template>
+        </ToggleSwitch>
+            
                 <Button  :pt="{
                     root:{class: 'btn-cursor'},
                 }" variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="收藏" icon="pi pi-star" />
