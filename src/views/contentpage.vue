@@ -5,6 +5,20 @@ import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import {useDialogStore} from '../stores/dialog'
+import axiosInstance from '../utils/getCards'
+import {useCarddata} from '../stores/carddata'
+const cardstore = useCarddata();
+//发送请求获得前5个卡片数据
+const submitregister = async () => {
+  try {
+    // 调用封装的 Axios 实例发送 POST 请求
+    const response = await axiosInstance.get('/getcard');
+    console.log('Registration Successful:', response);
+    cardstore.carddata.push(response.data);
+    alert('已获得前5个卡片数据');
+  } catch (error) {
+  }
+};
 const dialog = useDialogStore();
 //回复模块的数据示例
 let carddata_: sendcarddata[] = [
