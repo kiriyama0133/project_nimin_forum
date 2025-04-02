@@ -7,6 +7,7 @@ import menucomponet from '../components/menucomponet.vue';
 import { useRouter } from 'vue-router';
 import Drawer from 'primevue/drawer';
 import { useDrawerStore} from '../stores/drawer'
+import axiosInstance from '../utils/getCards'
 const drawerStore = useDrawerStore()
 const router = useRouter()
 let isloading = ref(true);
@@ -14,6 +15,16 @@ let screenWidth = ref(window.innerWidth)
 onMounted(() => {window.addEventListener('resize', updateScreenWidth);router.push('/Introduction')});
 function updateScreenWidth() {screenWidth.value = window.innerWidth;console.log(screenWidth.value) }// 更新屏幕宽度
  
+//发送请求获得前5个卡片数据
+const submitregister = async () => {
+  try {
+    // 调用封装的 Axios 实例发送 POST 请求
+    const response = await axiosInstance.get('/getcard');
+    console.log('Registration Successful:', response);
+    alert('已获得前5个卡片数据');
+  } catch (error) {
+  }
+};
 function check_loading(){
    let timer = setInterval(() => {
       if(document.readyState === 'complete')     // 判断页面是否加载完成 定时器
