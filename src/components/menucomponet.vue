@@ -189,10 +189,6 @@ const items = ref([
             icon: 'pi pi-cog'
         },
         {
-            label: '育儿',
-            icon: 'pi pi-cog'
-        },
-        {
             label: '自救互助',
             icon: 'pi pi-cog'
         },

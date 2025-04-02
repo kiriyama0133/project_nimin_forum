@@ -9,6 +9,8 @@ import InputGroupAddon from 'primevue/inputgroupaddon';
 import Popover from 'primevue/overlaypanel'; // Popover 实际是 OverlayPanel
 import ToggleSwitch from 'primevue/toggleswitch';
 import { useRouter } from 'vue-router';
+import {useDarkmode} from '../stores/darkmode'
+const darkstore = useDarkmode()
 const router = useRouter()
 const checked = ref(false);
 const items_ = ref([
@@ -31,6 +33,7 @@ const toggle = (event:any) => {
 }
 function toggleDarkMode() {
     document.documentElement.classList.toggle('darkmode');
+    darkstore.Darkmode = true
 }
 </script>
 <template>
@@ -39,26 +42,27 @@ function toggleDarkMode() {
     <template #end>
         <div class="flex items-center gap-2">
             <div class="flex gap-2 items-center">
-                
                     <ToggleSwitch v-model="checked" @click="toggleDarkMode()">
                         <template #handle="{ checked }">
-                <i :class="['!text-xs pi', { 'pi-moon': checked, 'pi-sun': !checked }]" />
-            </template>
-        </ToggleSwitch>
+                            <i :class="['!text-xs pi', { 'pi-moon': checked, 'pi-sun': !checked }]" />
+                        </template>
+                    </ToggleSwitch>
             
                 <Button  :pt="{
                     root:{class: 'btn-cursor'},
                 }" variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="收藏" icon="pi pi-star" />
                 <Button :pt="{
                     root:{class: 'btn-cursor'}
-                }" variant="outlined" raised style="font-size: 10px;" class="text w-23 h-8" label="饼干管理" icon="pi pi-user" />
+                }" variant="outlined" raised style="font-size: 10px;" 
+                class="text w-23 h-8" label="饼干管理" icon="pi pi-user" />
             </div>
 
         <div id="user-info" class="">
             <div class="card flex justify-center">
                 <Button :pt="{
                     root:{class: 'btn-cursor'}
-                }" variant="outlined" raised class="w-18 h-8" style="font-size: 10px;" type="button" icon="pi pi-user" label="用户" @click="toggle" />
+                }" variant="outlined" raised class="w-18 h-8" 
+                style="font-size: 10px;" type="button" icon="pi pi-user" label="用户" @click="toggle" />
                     <Popover :base-z-index="90" ref="op">
                         <div class="flex flex-col gap-1 w-[16rem]">
                             <div>
