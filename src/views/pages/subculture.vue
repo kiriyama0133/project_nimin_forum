@@ -22,7 +22,6 @@ const submitregister = async () => {
   }
 };
 onMounted(()=>{
-    submitregister();
 })
 // 滚动事件处理函数
 const scrollContainer = ref<HTMLElement | null>(null); // 定义模板引用

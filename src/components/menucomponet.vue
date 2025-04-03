@@ -2,11 +2,22 @@
 import { ref } from 'vue';
 import 'primeicons/primeicons.css';
 import Menu from 'primevue/menu';
-// import { useCounterStore } from '../stores/login_register';
-// const store = useCounterStore();
+import axiosInstance from '../utils/getCards'
+import {useCarddata} from '../stores/carddata'
 import { useRouter } from 'vue-router';
+const cardstore = useCarddata()
 const router = useRouter()
 import PanelMenu from 'primevue/panelmenu';
+
+// 修复点：通过 .value 修改 ref 对象的值
+function refresh(path:string,api:string) {
+    cardstore.carddata.splice(0,cardstore.carddata.length); //清空列表
+    router.push(path);
+    axiosInstance.get(api).then((response)=>{
+        cardstore.carddata.push(response.data)
+    })
+
+}
 const items = ref([
     {
         label: '分类',
@@ -34,56 +45,92 @@ const items = ref([
                 label: '婆罗门',
                 icon: 'pi pi-cog',
                 command:()=>{
-                    router.push('/subculture')
+                    refresh('/subculture','/getcard')
                 }
             },
             {
                 label: '漫画',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '动画',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '电影/电视剧',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: 'vtuber',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '卡牌桌游',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '特摄',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '战锤',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '胶佬',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '铁道厨',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: 'VOCALOID',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '东方project',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
             {
                 label: '舰娘',
-                icon: 'pi pi-cog'
+                icon: 'pi pi-cog',
+                command:()=>{
+                    refresh('/subculture','/getcard')
+                }
             },
         ]
     },
