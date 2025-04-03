@@ -9,7 +9,7 @@ const cardstore = useCarddata()
 const router = useRouter()
 import PanelMenu from 'primevue/panelmenu';
 
-// 修复点：通过 .value 修改 ref 对象的值
+//动态去得到对应的内容的卡片，并且刷新页面
 function refresh(path:string,api:string) {
     cardstore.carddata.splice(0,cardstore.carddata.length); //清空列表
     router.push(path);
