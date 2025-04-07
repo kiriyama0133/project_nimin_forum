@@ -26,14 +26,14 @@ const items = ref([
                 label: '综合板',
                 icon: 'pi pi-plus',
                 command:()=>{
-                    router.push('/Classification/total')
+                    refresh('/total','/getcard')
                 }
             },
             {
                 label: '时间板',
                 icon: 'pi pi-search',
                 command:()=>{
-                    router.push('/Classification/time')
+                    refresh('/time','/getcard')
                 }
             }
         ]

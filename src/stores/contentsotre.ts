@@ -3,7 +3,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import type{ sendcarddata } from '../types/sendcard';
-export const useCarddata = defineStore('card', () => {
+export const useCarddata = defineStore('cotentcard', () => {
     let contentdata = ref<sendcarddata[]>([]);
   return {
     contentdata

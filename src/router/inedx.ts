@@ -33,14 +33,14 @@ const router = createRouter({
           component: () => import('../views/contentpage.vue'),
         },
         {
-          path: '/Classification/time',
+          path: '/time',
           name: '时间',
-          component: () => import('../views/Fenlei/time.vue'),
+          component: () => import('../views/pages/time.vue'),
         },
         {
-          path: '/Classification/total',
+          path: '/total',
           name: '综合',
-          component: () => import('../views/Fenlei/total.vue'),
+          component: () => import('../views/pages/total.vue'),
         },
         {
           path: '/subculture',
@@ -54,6 +54,7 @@ const router = createRouter({
       name: '主页',
       component: () => import('../views/loginview.vue'),
     },
+    
   ],
 });
 export default router;
