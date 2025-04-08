@@ -47,6 +47,11 @@ const router = createRouter({
           name: '亚文化',
           component: () => import('../views/pages/subculture.vue'),
         },
+        {
+          path: '/settings',
+          name: '设置',
+          component: () => import('../views/settings.vue'), 
+        },
       ]
     },
     {

@@ -7,8 +7,14 @@ import {useCarddata} from '../stores/carddata'
 import { useRouter } from 'vue-router';
 const cardstore = useCarddata()
 const router = useRouter()
+const visible = ref(false);
+import Dialog from 'primevue/dialog';
 import PanelMenu from 'primevue/panelmenu';
-
+import InputText from 'primevue/inputtext';
+import FloatLabel from 'primevue/floatlabel';
+import Textarea from 'primevue/textarea';
+import Button from 'primevue/button';
+const value1 = ref(null);
 //动态去得到对应的内容的卡片，并且刷新页面
 function refresh(path:string,api:string) {
     cardstore.carddata.splice(0,cardstore.carddata.length); //清空列表
@@ -49,14 +55,7 @@ const items = ref([
                 }
             },
             {
-                label: '漫画',
-                icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
-            },
-            {
-                label: '动画',
+                label: '动漫',
                 icon: 'pi pi-cog',
                 command:()=>{
                     refresh('/subculture','/getcard')
@@ -258,12 +257,11 @@ const items = ref([
         ]
     },
     {
-    label: '应用设置',
-    icon: 'pi pi-cog'
-    },
-    {
         label: '联系管理员',
-        icon: 'pi pi-envelope'
+        icon: 'pi pi-envelope',
+        command:()=>{
+            visible.value = true
+        }
     }
 ]);
 </script>
@@ -275,6 +273,23 @@ const items = ref([
         </div>
     </template>
 </Menu> 
+<Dialog v-model:visible="visible" modal header="联系管理员" class="justyfy-content-center h-150">
+    <span class="text-surface-500 dark:text-surface-400 block mb-8 ">提交你的建议和报告bug</span>
+    <div class=" card flex items-center gap-4 mb-4">
+        <FloatLabel>
+            <Textarea id="over_label" class="w-90 resize-none"   rows="12" />
+            <label>写下你的建议吧</label>
+        </FloatLabel>
+    </div>
+    <div class="flex items-center gap-4 mb-8">
+        <label for="email" class="font-semibold ">你的邮件</label>
+        <InputText id="email" class="flex-auto " autocomplete="off" />
+    </div>
+    <div class="flex justify-end gap-2">
+        <Button type="button" label="取消" severity="secondary" @click="visible = false"></Button>
+        <Button type="button" label="发送" @click="visible = false"></Button>
+    </div>
+</Dialog>
 <div class="h-12"></div>
 </template>
 <style scoped>

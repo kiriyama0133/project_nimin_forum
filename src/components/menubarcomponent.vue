@@ -84,10 +84,10 @@ function toggleDarkMode() {
                                     label="我的回复" icon="pi pi-star" />
                                     <Button variant="outlined" 
                                     raised style="font-size: 16px;" class="text w-30 h-8" 
-                                    label="我的收藏" icon="pi pi-star" />
-                                    <Button variant="outlined" 
-                                    raised style="font-size: 16px;" class="text w-30 h-8" 
                                     label="我的账号" icon="pi pi-star" />
+                                    <Button @click="router.push('/settings')" variant="outlined" 
+                                    raised style="font-size: 16px;" class="text w-30 h-8" 
+                                    label="应用设置" icon="pi pi-star" />
                                 </div>
                             </div>
                         </div>
