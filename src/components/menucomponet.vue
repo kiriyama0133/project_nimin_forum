@@ -5,16 +5,22 @@ import Menu from 'primevue/menu';
 import axiosInstance from '../utils/getCards'
 import {useCarddata} from '../stores/carddata'
 import { useRouter } from 'vue-router';
+import { getBackComfirm } from '../stores/backcomfirm';
+import { useToast } from "primevue/usetoast";
+const getbackcomfirm = getBackComfirm()
 const cardstore = useCarddata()
 const router = useRouter()
 const visible = ref(false);
+const toast = useToast()
+const suggest = ref('')
+const email = ref('')
 import Dialog from 'primevue/dialog';
 import PanelMenu from 'primevue/panelmenu';
 import InputText from 'primevue/inputtext';
 import FloatLabel from 'primevue/floatlabel';
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
-const value1 = ref(null);
+import axiosComfirm from '../utils/comfirm'
 //动态去得到对应的内容的卡片，并且刷新页面
 function refresh(path:string,api:string) {
     cardstore.carddata.splice(0,cardstore.carddata.length); //清空列表
@@ -24,6 +30,39 @@ function refresh(path:string,api:string) {
     })
 
 }
+const backComfirm = async () => {
+    getbackcomfirm.BackComfirm.message=''; // 清空之前的卡片数据
+    if (!suggest.value.trim() || !email.value.trim()) {
+  toast.add({severity: "warn",summary: "提醒",detail: "请填写完整的反馈内容和邮箱！",life: 3000});
+    return;
+    }
+    try {
+    const response = await axiosComfirm.post('/send',{
+        suggest:suggest.value,
+        email:email.value,
+    });
+    console.log('Registration Successful:', response);
+    console.log('目前已得到的卡片数据：', response.data);
+    toast.add({ severity: "success", summary: "成功", detail: response.data.message, life: 3000 });
+    }catch (error) {
+    console.error('请求失败:', error);
+    toast.add({ severity: "error", summary: "错误", detail: error, life: 3000 });
+}
+};
+const sendmessageToadmin =()=> {
+    setTimeout(() => {
+    backComfirm().then(()=>{
+        console.log("数据加载完毕")
+        visible.value = false;
+       
+ }); 
+  }, 1000);
+};
+const buttonclick=() => {
+    console.log("点击了发送按钮")
+    sendmessageToadmin()
+};
+
 const items = ref([
     {
         label: '分类',
@@ -277,17 +316,19 @@ const items = ref([
     <span class="text-surface-500 dark:text-surface-400 block mb-8 ">提交你的建议和报告bug</span>
     <div class=" card flex items-center gap-4 mb-4">
         <FloatLabel>
-            <Textarea id="over_label" class="w-90 resize-none"   rows="12" />
+            <Textarea v-model="suggest" id="over_label" class="w-90 resize-none"   rows="12" />
             <label>写下你的建议吧</label>
         </FloatLabel>
     </div>
     <div class="flex items-center gap-4 mb-8">
         <label for="email" class="font-semibold ">你的邮件</label>
-        <InputText id="email" class="flex-auto " autocomplete="off" />
+        <InputText v-model="email" id="email" class="flex-auto " autocomplete="off" />
     </div>
     <div class="flex justify-end gap-2">
         <Button type="button" label="取消" severity="secondary" @click="visible = false"></Button>
-        <Button type="button" label="发送" @click="visible = false"></Button>
+        <div class="card flex justify-center">
+            <Button type="button" label="发送" @click="buttonclick()"/>
+        </div>
     </div>
 </Dialog>
 <div class="h-12"></div>
