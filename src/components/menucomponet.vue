@@ -37,6 +37,7 @@ const backComfirm = async () => {
     return;
     }
     try {
+        //发送数据到后端并返回后端的反馈
     const response = await axiosComfirm.post('/send',{
         suggest:suggest.value,
         email:email.value,
