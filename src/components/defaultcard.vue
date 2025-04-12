@@ -1,5 +1,5 @@
 <template>
-<div>
+<div class=" rounded-lg" style="box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.5);">
     <div @click="refresh('/contentpage','/getsendCard')" class="defaultcard bg-pink-50 rounded-lg shadow-lg transition-all 
         duration-500 transform hover:shadow-2xl hover:-translate-y-2 h-[10rem] line-clamp-5">
         <div class="p-4">
@@ -10,7 +10,7 @@
                             <p>No.{{ number }}</p>
                             <p>{{ id }}</p>
                         </div>
-                            <p>{{ time }}</p>
+                            <p style="font-size: xx-small;">{{ time }}</p>
                     </div>
                 </slot>
             </h2>

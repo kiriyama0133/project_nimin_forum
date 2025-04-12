@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ElMessage } from 'element-plus';
 import {useCounterStore} from '../stores/login_register'
 const store = useCounterStore()
 import { useRouter } from 'vue-router';
@@ -9,11 +10,17 @@ function rigister() {
   console.log(store.homepage);
 }
 function handle() {
+  ElMessage({
+    message: '登录成功',
+    type: 'success',
+    duration: 2000
+  })
   store.loading = true
   router.push('/homepage')
 }
 </script>
 <template>
+
 <div class="">
     <div class="flex items-center w-full p-2 bg-pink-100 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
     <!-- 图标 -->

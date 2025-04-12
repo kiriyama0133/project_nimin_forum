@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class=" rounded-lg" style="box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.5);">
         <div class="defaultcard rounded-lg shadow-lg transition-all 
             duration-200 transform hover:shadow-2xl hover:-translate-y-2">
             <div class="p-4">
@@ -7,7 +7,7 @@
                     <slot name="id">
                         <div class="flex gap-4 justify-between" alt="{{ number }}">
                             <p>{{ id }}</p>
-                            <div>
+                            <div style="font-size: xx-small;">
                                 <p>{{ time }}</p>
                                 <p alt="{{ index }}">层数：{{ index }}</p>
                             </div>

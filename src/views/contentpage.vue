@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import sendcard from '../components/sendcard.vue';
-import subcltureheader from '../components/subcltureheader.vue';
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -82,13 +81,7 @@ const handleScroll = () => {
 <template>
   <div @scroll="handleScroll"
   ref="scrollContainer" class="subculture scroll-custom h-full overflow-y-auto">
-  <div name="header">
-            <subcltureheader>
-                <template #header>
-                    <!-- 如果不适用插槽则显示默认内容,这里打算用v-html去渲染内容，由接口服务 -->
-                </template>
-            </subcltureheader>
-        </div>
+
   <div class="card flex justify-center">
         <Dialog v-model:visible="dialog.Dialogvisible" modal header="回复" :style="{ width: '25rem' }">
             <div class="flex items-center gap-4 mb-4">
@@ -104,7 +97,7 @@ const handleScroll = () => {
             </div>
         </Dialog>
     </div>
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-1 p-2">
         <sendcard v-for="(item,i) in sendcardstore.contentdata"
             :number="item.number"
             :id="item.id"

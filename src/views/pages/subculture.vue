@@ -62,7 +62,7 @@ const onScrollToBottom = () => {
             </subcltureheader>
         </div>
 
-        <div name="content" class="flex flex-col gap-2">
+        <div name="content" class="flex flex-col gap-2 p-2">
             <defaultcard v-for="item in cardstore.carddata"
                 :number="item.number"
                 :time = "item.time"
