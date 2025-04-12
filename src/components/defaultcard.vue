@@ -5,9 +5,12 @@
         <div class="p-4">
             <h2 class="text-lg  text-gray-800 mb-4">
                 <slot name="title">
-                    <div class="flex gap-4">
-                        <p>No.{{ number }}</p>
-                        <p>{{ id }}</p>
+                    <div class="flex gap-4 justify-between">
+                        <div>
+                            <p>No.{{ number }}</p>
+                            <p>{{ id }}</p>
+                        </div>
+                            <p>{{ time }}</p>
                     </div>
                 </slot>
             </h2>
@@ -21,7 +24,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-defineProps(['number','id','content'])
+defineProps(['number','id','content','time'])
 import { useRouter } from 'vue-router';
 import axiosInstance from '../utils/getReply'
 import {useCarddata} from '../stores/contentsotre'
@@ -33,6 +36,7 @@ function refresh(path:string,api:string) {
     axiosInstance.get(api).then((response)=>{
         sendcardstore.contentdata.push(response.data)
     })
+    //这里之后写向后台请求点赞数据的业务代码。
 }
 </script>
 <style scoped>

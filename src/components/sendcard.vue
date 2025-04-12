@@ -5,9 +5,12 @@
             <div class="p-4">
                 <h2 class="text-lg   mb-3">
                     <slot name="id">
-                        <div class="flex gap-4 justify-between">
+                        <div class="flex gap-4 justify-between" alt="{{ number }}">
                             <p>{{ id }}</p>
-                            <p alt="{{ index }}">层数：{{ index }}</p>
+                            <div>
+                                <p>{{ time }}</p>
+                                <p alt="{{ index }}">层数：{{ index }}</p>
+                            </div>
                         </div>
                     </slot>
                 </h2>
@@ -56,7 +59,7 @@ function refresh(){
     dialog.Dialogvisible = true;
     dialog.replyuser = props.id
 }
-const props = defineProps(['id','reply','content','index','thumbs'])
+const props = defineProps(['id','reply','content','index','thumbs','time','number'])
 </script>
 <style scoped>
 .defaultcard{

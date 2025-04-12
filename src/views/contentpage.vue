@@ -106,9 +106,11 @@ const handleScroll = () => {
     </div>
     <div class="flex flex-col gap-1">
         <sendcard v-for="(item,i) in sendcardstore.contentdata"
+            :number="item.number"
             :id="item.id"
             :index="i+1"
             :reply="item.reply"
+            :time = "item.time"
             :content="item.content"
             :thumbs="item.thumbs"
         >
