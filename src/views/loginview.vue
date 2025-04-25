@@ -5,6 +5,7 @@ import {useCounterStore} from '../stores/login_register'
 import routate from '../components/routate.vue';
 import login from './login.vue';
 import register from './register.vue';
+import reset from '../components/reset.vue';
 const store = useCounterStore();
 import loading from '../components/loading.vue';
 let screenWidth = ref(window.innerWidth)
@@ -33,7 +34,7 @@ function updateScreenWidth() {screenWidth.value = window.innerWidth;console.log(
  
 watch(()=>store.homepage, (newValue, _) => {
     if (newValue=='register') {
-      console.log("ok!")
+      console.log("register_form!")
       animateElement(200, 0, 300)
       setTimeout(() => {
         form.value = 'register'
@@ -41,10 +42,18 @@ watch(()=>store.homepage, (newValue, _) => {
       }, 320);
     }
     if (newValue=='login') {
-      console.log("ok!")
+      console.log("login_form!")
       animateElement(200, 0, 300)
       setTimeout(() => {
         form.value = 'login'
+        animateElement_R(0, 1, 300)
+      }, 320);
+    }
+    if (newValue=='reset') {
+      console.log("reset_form!")
+      animateElement(200, 0, 300)
+      setTimeout(() => {
+        form.value = 'reset'
         animateElement_R(0, 1, 300)
       }, 320);
     }
@@ -70,6 +79,7 @@ watch(()=>store.homepage, (newValue, _) => {
                     <div id="shrinkable-component" class="shrinkable-component">
                         <login class="card" v-if="form=='login'"></login>
                         <register class="card" v-if="form=='register'"></register>
+                        <reset class="card" v-if="form=='reset'"></reset>
                     </div>
                     </div>
                 </div>

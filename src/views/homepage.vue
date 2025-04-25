@@ -25,6 +25,7 @@ const submitregister = async () => {
   } catch (error) {
   }
 };
+
 function check_loading(){
    let timer = setInterval(() => {
       if(document.readyState === 'complete')     // 判断页面是否加载完成 定时器

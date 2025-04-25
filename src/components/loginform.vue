@@ -5,9 +5,7 @@ const store = useCounterStore()
 import { useRouter } from 'vue-router';
 const router = useRouter()
 function rigister() {
-  console.log(store.homepage);
   store.homepage='register'
-  console.log(store.homepage);
 }
 function handle() {
   ElMessage({
@@ -62,7 +60,7 @@ function handle() {
     </button>
 
     <!-- 重置密码按钮 -->
-    <button
+    <button @click="store.homepage='reset'"
       class="btn w-15 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-200 hover:shadow-lg transition duration-300"
     >
       重置
