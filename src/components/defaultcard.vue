@@ -21,13 +21,13 @@
             </p>
             </div>
             <div class ="flex justify-end h-5 items-center">
-                <ToggleButton size="small" v-model="isfavorate" onIcon="pi pi-star-fill" offIcon="pi pi-star" onLabel="已收藏" offLabel="收藏"/>
+                <ToggleButton size="small" v-model="isfavorate" @click="favorate()" onIcon="pi pi-star-fill" offIcon="pi pi-star" onLabel="已收藏" offLabel="收藏"/>
             </div>
         </div>
     </div>
 </template>
 <script lang="ts" setup>
-defineProps(['number','id','content','time'])
+const props = defineProps(['number','id','content','time'])
 import { useRouter } from 'vue-router';
 import axiosInstance from '../utils/getReply'
 import {useCarddata} from '../stores/contentsotre'
@@ -45,8 +45,22 @@ function refresh(path:string,api:string) {
     })
     //这里之后写向后台请求点赞数据的业务代码。
 }
-function favorate(){
+function favorate() {
+    const favorites = JSON.parse(localStorage.getItem('favoriteNumbers') || '[]')
 
+    if (isfavorate.value) {
+        // 如果当前 number 不在收藏列表里，就添加
+        if (!favorites.includes(props.number)) {
+            favorites.push(props.number)
+            localStorage.setItem('favoriteNumbers', JSON.stringify(favorites))
+            console.log("已收藏，当前收藏列表:", favorites)
+        }
+    } else {
+        // 取消收藏 → 从数组里移除当前 number
+        const updatedFavorites = favorites.filter((num: any) => num !== props.number)
+        localStorage.setItem('favoriteNumbers', JSON.stringify(updatedFavorites))
+        console.log("已取消收藏，当前收藏列表:", updatedFavorites)
+    }
 }
 </script>
 <style scoped>
