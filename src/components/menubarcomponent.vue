@@ -50,7 +50,7 @@ function toggleDarkMode() {
             
                 <Button  :pt="{
                     root:{class: 'btn-cursor'},
-                }" variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="收藏" icon="pi pi-star" />
+                }" variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="收藏" icon="pi pi-star" @click="router.push('/favorate')" />
                 <Button :pt="{
                     root:{class: 'btn-cursor'}
                 }" variant="outlined" raised style="font-size: 10px;" 

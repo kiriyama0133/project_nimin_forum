@@ -45,6 +45,8 @@ const backComfirm = async () => {
     console.log('Registration Successful:', response);
     console.log('目前已得到的卡片数据：', response.data);
     toast.add({ severity: "success", summary: "成功", detail: response.data.message, life: 3000 });
+    suggest.value = ''; // 清空输入框
+    email.value = ''; // 清空输入框
     }catch (error) {
     console.error('请求失败:', error);
     toast.add({ severity: "error", summary: "错误", detail: error, life: 3000 });
