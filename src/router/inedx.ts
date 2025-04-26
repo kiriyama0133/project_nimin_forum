@@ -52,6 +52,12 @@ const router = createRouter({
           name: '设置',
           component: () => import('../views/settings.vue'), 
         },
+        {
+          path: '/favorate',
+          name: '收藏',
+          component: () => import('../views/favorate.vue'), 
+        },
+
       ]
     },
     {
