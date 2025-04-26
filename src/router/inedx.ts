@@ -57,6 +57,11 @@ const router = createRouter({
           name: '收藏',
           component: () => import('../views/favorate.vue'), 
         },
+        {
+          path: '/cookies',
+          name: '饼干',
+          component: () => import('../views/cookies.vue'), 
+        },
 
       ]
     },
