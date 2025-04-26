@@ -12,6 +12,7 @@
     "@popperjs/core": "^2.11.8",
     "@primeuix/themes": "^1.0.0",
     "@tailwindcss/vite": "^4.0.17",
+    "animejs": "^4.0.2",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "electron-store": "^10.0.1",

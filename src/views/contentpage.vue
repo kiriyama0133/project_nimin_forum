@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import sendcard from '../components/sendcard.vue';
+import { ElMessage } from 'element-plus'
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -11,8 +12,24 @@ const dialog = useDialogStore();
 const sendcardstore = useCarddata()
 let dataend = ref(false);
 let dataloading = ref(false);
+let click_reply = ref(false) //点击回复按钮的标志
+const open1 = () => {
+  ElMessage({
+    message: '回复成功！😊',
+    type: 'success',
+    plain: true,
+  })
+}
+//发送按钮的函数
+function send(){
+  click_reply.value = true
+  setTimeout(() => {
+    dialog.Dialogvisible = false
+    click_reply.value = false
+    open1()
+  }, 2000);
+}
 //回复模块的数据示例
-
 const submitregister = async () => {
   dataloading.value = true; // 开始加载
   try {
@@ -93,7 +110,14 @@ const handleScroll = () => {
             </div>
             <div class="flex justify-end gap-2">
                 <Button type="button" label="取消" severity="secondary" @click="dialog.Dialogvisible = false"></Button>
-                <Button type="button" label="发送" @click="dialog.Dialogvisible = false"></Button>
+                <Button type="button" label="发送" @click="send">
+                    <template v-if="click_reply" #icon>
+                        <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        </svg>
+                    </template>
+                </Button>
             </div>
         </Dialog>
     </div>
