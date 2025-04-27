@@ -6,7 +6,7 @@
                 <h2 class="text-lg   mb-3">
                     <slot name="id">
                         <div class="flex gap-4 justify-between" alt="{{ number }}">
-                            <p>{{ id }}</p>
+                            <p>id:{{ id }}</p>
                             <div style="font-size: xx-small;">
                                 <p>{{ time }}</p>
                                 <p alt="{{ index }}">层数：{{ index }}</p>
