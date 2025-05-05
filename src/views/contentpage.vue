@@ -8,11 +8,15 @@ import {useDialogStore} from '../stores/dialog'
 import axiosInstance from '../utils/getReply'
 import {useCarddata} from '../stores/contentsotre.ts'
 import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 const dialog = useDialogStore();
 const sendcardstore = useCarddata()
+const route = useRoute();
 let dataend = ref(false);
 let dataloading = ref(false);
 let click_reply = ref(false) //点击回复按钮的标志
+
+
 const open1 = () => {
   ElMessage({
     message: '回复成功！😊',
@@ -98,7 +102,16 @@ const handleScroll = () => {
 <template>
   <div @scroll="handleScroll"
   ref="scrollContainer" class="subculture scroll-custom h-full overflow-y-auto">
-
+  <div class="flex flex-col gap-1 p-2">
+        <sendcard
+            :number="route.query.number"
+            :id="route.query.id"
+            :time = "route.query.time"
+            :index="0"
+            :content="route.query.content"
+        >
+    </sendcard>
+    </div>
   <div class="card flex justify-center">
         <Dialog v-model:visible="dialog.Dialogvisible" modal header="回复" :style="{ width: '25rem' }">
             <div class="flex items-center gap-4 mb-4">
@@ -121,6 +134,7 @@ const handleScroll = () => {
             </div>
         </Dialog>
     </div>
+    <h2 class="text-lg mb-3">以下是帖No.{{route.query.number}}的回复</h2>
     <div class="flex flex-col gap-1 p-2">
         <sendcard v-for="(item,i) in sendcardstore.contentdata"
             :number="item.number"
