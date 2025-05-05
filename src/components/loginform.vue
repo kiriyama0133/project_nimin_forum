@@ -3,18 +3,64 @@ import { ElMessage } from 'element-plus';
 import {useCounterStore} from '../stores/login_register'
 const store = useCounterStore()
 import { useRouter } from 'vue-router';
+import { LoginService, OpenAPI } from '../client';
+import { ref } from 'vue';
+OpenAPI.BASE = 'https://localhost:8000';
 const router = useRouter()
+let LoginData = ref({
+  username: '',
+  password: ''
+})
 function rigister() {
   store.homepage='register'
 }
+
+const LoginSend = async () => {
+  store.loading = true;
+  try {
+    const response = await LoginService.loginAccessToken({
+      formData: {
+        username: LoginData.value.username,
+        password: LoginData.value.password
+      }
+    });
+
+    console.log('Login Successful:', response);
+
+    if (response.access_token) {
+      localStorage.setItem('access_token', response.access_token);
+      OpenAPI.TOKEN = response.access_token;
+
+      ElMessage({
+        message: '登录成功',
+        type: 'success',
+        duration: 2000
+      });
+
+      router.push('/homepage');
+    } else {
+       console.error('登录失败: 未收到 access_token');
+       ElMessage({
+        message: '登录失败: 未收到凭证',
+        type: 'error',
+        duration: 3000
+      });
+    }
+
+  } catch (error) {
+    console.error('登录请求失败:', error);
+    ElMessage({
+        message: '登录失败，请检查邮箱或密码',
+        type: 'error',
+        duration: 3000
+      });
+  } finally {
+    store.loading = false;
+  }
+};
+
 function handle() {
-  ElMessage({
-    message: '登录成功',
-    type: 'success',
-    duration: 2000
-  })
-  store.loading = true
-  router.push('/homepage')
+  LoginSend()
 }
 </script>
 <template>
@@ -26,8 +72,8 @@ function handle() {
       <User />
     </el-icon>
     <!-- 输入框 -->
-    <input
-      placeholder="请输入用户名"
+    <input v-model="LoginData.username"
+      placeholder="请输入邮箱"
       class="text flex-1 p-2 bg-transparent outline-none text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 rounded-md"
     />
     </div>
@@ -38,7 +84,7 @@ function handle() {
       <Lock />
     </el-icon>
     <!-- 输入框 -->
-    <input type="password"
+    <input type="password" v-model="LoginData.password"
       placeholder="请输入密码"
       class="text flex-1 p-2 bg-transparent outline-none text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 rounded-md"
     />

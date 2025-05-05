@@ -6,11 +6,19 @@ import routate from '../components/routate.vue';
 import login from './login.vue';
 import register from './register.vue';
 import reset from '../components/reset.vue';
+import { useRouter } from 'vue-router';
+import { LoginService, OpenAPI } from '../client';
 const store = useCounterStore();
 import loading from '../components/loading.vue';
+
+const router = useRouter();
+
 let screenWidth = ref(window.innerWidth)
-onMounted(() => {window.addEventListener('resize', updateScreenWidth);});
-let form = ref('login')
+onMounted(() => {
+  window.addEventListener('resize', updateScreenWidth);
+  checkExistingToken();
+});
+
 function animateElement(translateX:any, opacity:any, duration:any) {
   const element = document.getElementById("shrinkable-component");
     if(element != null){// 动态设置动画持续时间
@@ -31,7 +39,32 @@ function animateElement_R(translateX:any, opacity:any, duration:any) {
  }
 }
 function updateScreenWidth() {screenWidth.value = window.innerWidth;console.log(screenWidth.value) }// 更新屏幕宽度
- 
+
+//检查现有的token，如果有就发送至服务端去验证
+const checkExistingToken = async () => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    console.log('Found token, verifying...');
+    store.loading = true;
+    OpenAPI.TOKEN = token;
+    try {
+      await LoginService.testToken();
+      console.log('Token verified successfully.');
+      router.push('/homepage');
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      localStorage.removeItem('access_token');
+      OpenAPI.TOKEN = undefined;
+    } finally {
+      store.loading = false;
+    }
+  } else {
+    console.log('No existing token found.');
+  }
+};
+
+let form = ref('login')
+
 watch(()=>store.homepage, (newValue, _) => {
     if (newValue=='register') {
       console.log("register_form!")

@@ -10,6 +10,7 @@ import Popover from 'primevue/overlaypanel'; // Popover 实际是 OverlayPanel
 import ToggleSwitch from 'primevue/toggleswitch';
 import { useRouter } from 'vue-router';
 import {useDarkmode} from '../stores/darkmode'
+import { OpenAPI } from '../client/core/OpenAPI';
 const darkstore = useDarkmode()
 const router = useRouter()
 const checked = ref(false);
@@ -34,6 +35,11 @@ const toggle = (event:any) => {
 function toggleDarkMode() {
     document.documentElement.classList.toggle('darkmode');
     darkstore.Darkmode = true
+}
+function DeleteToken() {
+    localStorage.removeItem('access_token');
+    OpenAPI.TOKEN = undefined;
+    router.push('/loginview')
 }
 </script>
 <template>
@@ -85,9 +91,9 @@ function toggleDarkMode() {
                                     <Button variant="outlined" 
                                     raised style="font-size: 16px;" class="text w-30 h-8" 
                                     label="我的账号" icon="pi pi-star" />
-                                    <Button @click="router.push('/settings')" variant="outlined" 
+                                    <Button @click="DeleteToken" variant="outlined" 
                                     raised style="font-size: 16px;" class="text w-30 h-8" 
-                                    label="应用设置" icon="pi pi-star" />
+                                    label="退出账号" icon="pi pi-star" />
                                 </div>
                             </div>
                         </div>
