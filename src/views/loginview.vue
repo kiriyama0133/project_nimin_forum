@@ -8,10 +8,13 @@ import register from './register.vue';
 import reset from '../components/reset.vue';
 import { useRouter } from 'vue-router';
 import { LoginService, OpenAPI } from '../client';
-const store = useCounterStore();
+import { getUserIdFromToken } from '../utils/fromTokenGetID';
 import loading from '../components/loading.vue';
-
+// 获取用户id
+const userId = getUserIdFromToken();
+const store = useCounterStore();
 const router = useRouter();
+store.userInfo.username = userId;
 
 let screenWidth = ref(window.innerWidth)
 onMounted(() => {

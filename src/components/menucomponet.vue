@@ -22,23 +22,29 @@ import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
 import axiosComfirm from '../utils/comfirm'
 //动态去得到对应的内容的卡片，并且刷新页面
-function refresh(path:string,api:string) {
-    console.log(`Refreshing category, path: ${path}, api: ${api}`);
-    cardstore.carddata.splice(0,cardstore.carddata.length); //清空列表
-    router.push(path); 
-    
-    // Use POST and send skip: 0 to get the first page
-    axiosInstance.post(api, { skip: 0 }).then((response)=>{
+function refresh(path: string, api: string, category: string) {
+    console.log(`刷新分类: ${category}, 路径: ${path}, API: ${api}`);
+    cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
+    // Maybe set an initial loading state here if needed elsewhere
+    // cardstore.initialLoading = true; // If using store state for initial load
+
+    router.push(path);
+
+    // Use POST and send skip: 0 and the category
+    axiosInstance.post(api, { skip: 0, category: category }).then((response) => {
         const receivedCards = response.data.data;
         if (receivedCards && Array.isArray(receivedCards)) {
             cardstore.carddata.push(...receivedCards);
-            console.log('Refreshed initial card data:', cardstore.carddata);
+            console.log(`分类 "${category}" 的初始卡片数据已加载:`, cardstore.carddata);
         } else {
-            console.warn('Received initial card data is not a valid array or is empty:', receivedCards);
+            console.warn(`分类 "${category}" 返回的初始卡片数据无效或为空:`, receivedCards);
+            // Handle case where category might have no cards initially
         }
     }).catch(error => {
-        console.error(`Failed to refresh initial data from ${api}:`, error);
+        console.error(`从 ${api} (分类: ${category}) 刷新初始数据失败:`, error);
         toast.add({ severity: "error", summary: "错误", detail: "加载初始数据失败", life: 3000 });
+    }).finally(() => {
+        // cardstore.initialLoading = false; // Reset loading state if used
     });
 }
 const backComfirm = async () => {
@@ -84,16 +90,12 @@ const items = ref([
             {
                 label: '综合板',
                 icon: 'pi pi-plus',
-                command:()=>{
-                    refresh('/total','/getcard')
-                }
+                command: () => { refresh('/total', '/getcard', 'total') }
             },
             {
                 label: '时间板',
                 icon: 'pi pi-search',
-                command:()=>{
-                    refresh('/time','/getcard')
-                }
+                command: () => { refresh('/time', '/getcard', 'time') }
             }
         ]
     },
@@ -103,86 +105,62 @@ const items = ref([
             {
                 label: '婆罗门',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'brahmin') }
             },
             {
                 label: '动漫',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'anime') }
             },
             {
                 label: '电影/电视剧',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'movie_tv') }
             },
             {
                 label: 'vtuber',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'vtuber') }
             },
             {
                 label: '卡牌桌游',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'boardgame') }
             },
             {
                 label: '特摄',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'tokusatsu') }
             },
             {
                 label: '战锤',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'warhammer') }
             },
             {
                 label: '胶佬',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'modelkit') }
             },
             {
                 label: '铁道厨',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'railfan') }
             },
             {
                 label: 'VOCALOID',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'vocaloid') }
             },
             {
                 label: '东方project',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'touhou') }
             },
             {
                 label: '舰娘',
                 icon: 'pi pi-cog',
-                command:()=>{
-                    refresh('/subculture','/getcard')
-                }
+                command: () => { refresh('/subculture', '/getcard', 'kancolle') }
             },
         ]
     },
@@ -191,39 +169,48 @@ const items = ref([
     items: [
         {
             label: '跑团',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'trpg') }
         },
         {
             label: '创作',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'creation') }
         },
         {
             label: '规则怪谈',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'creepypasta') }
         },
         {
             label: '海龟汤',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'situation_puzzle') }
         },
         {
             label: '科学',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'science') }
         },
         {
             label: '文学',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'literature') }
         },
         {
             label: '音乐',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'music') }
         },
         {
             label: 'AI',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'ai') }
         },
         {
             label: '摄影',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/create', '/getcard', 'photography') }
         },
         ]
     },
@@ -232,51 +219,63 @@ const items = ref([
     items: [
         {
             label: '综合',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'game_general') }
         },
         {
             label: '手游',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'mobile_game') }
         },
         {
             label: '任天堂',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'nintendo') }
         },
         {
             label: 'Galgame',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'galgame') }
         },
         {
             label: '暴雪游戏',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'blizzard') }
         },
         {
             label: 'SE',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'square_enix') }
         },
         {
             label: 'V社',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'valve') }
         },
         {
             label: '怪物猎人',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'monster_hunter') }
         },
         {
             label: '鹰角',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'hypergryph') }
         },
         {
             label: '米哈游',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'mihoyo') }
         },
         {
             label: '音游',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'rhythm_game') }
         },
         {
             label: '腾讯游戏',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/game', '/getcard', 'tencent_game') }
         },
         ]
     },
@@ -285,36 +284,40 @@ const items = ref([
     items: [
         {
             label: '露营',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/life', '/getcard', 'camping') }
         },
         {
             label: '自救互助',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/life', '/getcard', 'self_help') }
         },
         {
             label: '料理',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/life', '/getcard', 'cooking') }
         },
         {
             label: '体育',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/life', '/getcard', 'sports') }
         },
         {
             label: '学业',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/life', '/getcard', 'study') }
         },
         {
             label: '日记',
-            icon: 'pi pi-cog'
+            icon: 'pi pi-cog',
+            command: () => { refresh('/life', '/getcard', 'diary') }
         },
         ]
     },
     {
         label: '联系管理员',
         icon: 'pi pi-envelope',
-        command:()=>{
-            visible.value = true
-        }
+        command: () => { visible.value = true }
     }
 ]);
 </script>

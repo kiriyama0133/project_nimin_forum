@@ -11,8 +11,23 @@ axios.create({
   //请求拦截器
   axiosInstance.interceptors.request.use(
     (config) => {
-      //在发送请求之前可以添加额外的逻辑，比如添加认证 token
-      console.log('Request:', config);
+      // --- 添加 Token 到请求头 ---
+      // 1. 从 localStorage 获取 token
+      const token = localStorage.getItem('access_token');
+      
+      // 2. 如果 token 存在，添加到 Authorization 请求头
+      if (token) {
+        // 确保 headers 对象存在
+        config.headers = config.headers || {};
+        // 添加 Bearer Token
+        config.headers['Authorization'] = `Bearer ${token}`;
+        console.log("axiosInstance: Adding Authorization header");
+      } else {
+        console.log("axiosInstance: No token found, request sent without Authorization header");
+      }
+      // ------------------------
+      
+      // console.log('Original Request Config:', config); // 可以保留或移除原始日志
       return config;
     },
     (error) => {

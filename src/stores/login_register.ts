@@ -4,8 +4,7 @@ import { reactive, ref} from 'vue';
 import type { UserInfo } from '../types/userInfo';
 export const useCounterStore = defineStore('user', () => {
   const userInfo = reactive<UserInfo>({
-    username: 'root',
-    password: '123456',
+    username: '',
   });
   let loading = ref<boolean>(false);
   let homepage = ref<string>('login')
