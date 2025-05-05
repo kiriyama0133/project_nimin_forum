@@ -23,12 +23,23 @@ import Button from 'primevue/button';
 import axiosComfirm from '../utils/comfirm'
 //动态去得到对应的内容的卡片，并且刷新页面
 function refresh(path:string,api:string) {
+    console.log(`Refreshing category, path: ${path}, api: ${api}`);
     cardstore.carddata.splice(0,cardstore.carddata.length); //清空列表
-    router.push(path);
-    axiosInstance.get(api).then((response)=>{
-        cardstore.carddata.push(response.data)
-    })
-
+    router.push(path); 
+    
+    // Use POST and send skip: 0 to get the first page
+    axiosInstance.post(api, { skip: 0 }).then((response)=>{
+        const receivedCards = response.data.data;
+        if (receivedCards && Array.isArray(receivedCards)) {
+            cardstore.carddata.push(...receivedCards);
+            console.log('Refreshed initial card data:', cardstore.carddata);
+        } else {
+            console.warn('Received initial card data is not a valid array or is empty:', receivedCards);
+        }
+    }).catch(error => {
+        console.error(`Failed to refresh initial data from ${api}:`, error);
+        toast.add({ severity: "error", summary: "错误", detail: "加载初始数据失败", life: 3000 });
+    });
 }
 const backComfirm = async () => {
     getbackcomfirm.BackComfirm.message=''; // 清空之前的卡片数据

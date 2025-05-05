@@ -128,7 +128,7 @@ function handleRegister() {
       <!-- Back to Login Button -->
       <button
         @click="goToLogin"
-        class="btn w-15 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-200 hover:shadow-lg transition duration-300"
+        class="btn w-18 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg shadow-md hover:bg-gray-200 hover:shadow-lg transition duration-300"
         :disabled="store.loading"
       >
         返回登录

@@ -1,7 +1,7 @@
 import axios from 'axios';
 const axiosInstance = 
 axios.create({
-    baseURL: 'https://m1.apifoxmock.com/m1/6126513-5818179-default', // 后端服务的基础 URL
+    baseURL: 'https://localhost:8000/api/v1/cards', // 后端服务的基础 URL
     timeout: 5000, // 请求超时时间（毫秒）
     headers: {
       'Content-Type': 'application/json', // 默认请求头
@@ -27,6 +27,8 @@ axios.create({
     (response) => {
       //对响应数据进行处理
       console.log('Response:', response);
+      // console.log('获取到的卡片数据：', response.data); //json数据集
+      // console.log('获取到的里层数据：', response.data.data); //列表
       return response; // 直接返回响应数据
     },
     (error) => {

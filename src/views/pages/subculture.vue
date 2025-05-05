@@ -11,12 +11,28 @@ let dataloading = ref(false);
 const submitregister = async () => {
   dataloading.value = true; // 开始加载
   try {
-    const response = await axiosInstance.get('/getcard');
-    console.log('Registration Successful:', response);
-    cardstore.carddata.push(response.data);
-    console.log('目前已得到的卡片数据：', cardstore.carddata);
+    const currentItemCount = cardstore.carddata.length;
+    console.log(`Requesting next page with skip: ${currentItemCount}`);
+
+    const response = await axiosInstance.post('/getcard', { skip: currentItemCount }); 
+    
+    const receivedCards = response.data.data;
+
+    if (receivedCards && Array.isArray(receivedCards)) {
+      cardstore.carddata.push(...receivedCards);
+      console.log('已添加数据：', receivedCards);
+      console.log('目前总卡片数据：', cardstore.carddata);
+      if (receivedCards.length === 0) {
+        dataend.value = true; // 设置数据结束标志
+      }
+    } else {
+      console.log('未收到卡片数据或格式不正确。', receivedCards);
+      dataend.value = true; // Assume end if format is wrong
+    }
+    
   } catch (error) {
     console.error('请求失败:', error);
+    dataend.value = true; // Assume end on error to prevent infinite loops
   } finally {
     dataloading.value = false; // 加载完成
   }
