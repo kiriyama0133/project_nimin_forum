@@ -25,12 +25,8 @@ import axiosComfirm from '../utils/comfirm'
 function refresh(path: string, api: string, category: string) {
     console.log(`刷新分类: ${category}, 路径: ${path}, API: ${api}`);
     cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
-    // Maybe set an initial loading state here if needed elsewhere
-    // cardstore.initialLoading = true; // If using store state for initial load
-
     router.push(path);
-
-    // Use POST and send skip: 0 and the category
+    //第一次加载内容
     axiosInstance.post(api, { skip: 0, category: category }).then((response) => {
         const receivedCards = response.data.data;
         if (receivedCards && Array.isArray(receivedCards)) {

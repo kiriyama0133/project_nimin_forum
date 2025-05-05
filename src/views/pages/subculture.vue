@@ -3,7 +3,7 @@ import subcltureheader from '../../components/subcltureheader.vue';
 import defaultcard from '../../components/defaultcard.vue';
 import axiosInstance from '../../utils/getCards'
 import {useCarddata} from '../../stores/carddata'
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import type { SendTopic } from '../../types/sendTopic';
 // Import PrimeVue components
 import Dialog from 'primevue/dialog';
@@ -156,17 +156,6 @@ const submitregister = async () => {
     dataloading.value = false; // 加载完成
   }
 };
-
-onMounted(()=>{
-    // Load initial data only if the list is currently empty
-    // This prevents reloading if navigating back to this view
-    if (cardstore.carddata.length === 0) {
-        console.log("初始挂载时卡片为空，加载初始数据...");
-        submitregister(); // Load first page (skip: 0)
-    } else {
-        console.log("初始挂载时已有卡片，不重新加载。");
-    }
-})
 
 // 滚动事件处理函数
 const scrollContainer = ref<HTMLElement | null>(null); // 定义模板引用
