@@ -4,6 +4,7 @@ import defaultcard from '../../components/defaultcard.vue';
 import axiosInstance from '../../utils/getCards'
 import {useCarddata} from '../../stores/carddata'
 import { ref } from 'vue';
+import { isloading } from '../../stores/isloading';
 import type { SendTopic } from '../../types/sendTopic';
 // Import PrimeVue components
 import Dialog from 'primevue/dialog';
@@ -17,9 +18,8 @@ import 'primeicons/primeicons.css';
 // Import useToast if not already (assuming you use PrimeVue Toast)
 import { useToast } from "primevue/usetoast";
 const toast = useToast(); // Initialize toast
-
+const isloadingstore = isloading();
 const cardstore = useCarddata();
-let dataend = ref(false);
 let dataloading = ref(false);
 
 // --- State for New Topic Dialog ---
@@ -146,6 +146,9 @@ const submitregister = async () => {
       cardstore.carddata.push(...receivedCards);
       console.log('已添加数据：', receivedCards);
       console.log('目前总卡片数据：', cardstore.carddata);
+      if (receivedCards.length === 0) {
+        isloadingstore.dataend = true;
+      }
     } else {
       console.log('未收到卡片数据或格式不正确。', receivedCards);
     }
@@ -175,7 +178,7 @@ const handleScroll = () => {
 
 const onScrollToBottom = () => {
   // 如果数据已结束或已在加载，则阻止获取
-  if (dataend.value || dataloading.value) {
+  if (isloadingstore.dataend || dataloading.value) {
     return;
   }
   console.log("滚动到底部了！准备延时加载...");
@@ -187,7 +190,7 @@ const onScrollToBottom = () => {
   setTimeout(() => {
     // 在延时结束后，再次检查是否仍在加载中（防止快速滚动触发多次延时）
     // 并且检查数据是否已经结束（虽然不太可能在此期间改变，但以防万一）
-    if (dataloading.value && !dataend.value) {
+    if (dataloading.value && !isloadingstore.dataend) {
         console.log("延时结束，开始获取下一页数据...");
         submitregister(); // 获取下一页
         // 注意：submitregister 内部会设置 dataloading = false in finally
@@ -221,20 +224,20 @@ const onScrollToBottom = () => {
             </defaultcard>
         </div>
 
-        <div v-if="cardstore.carddata.length === 0 && !dataloading && dataend" class="text-center p-5 text-gray-500">
+        <div v-if="cardstore.carddata.length === 0 && !dataloading && isloadingstore.dataend" class="text-center p-5 text-gray-500">
             这个板块还没有内容哦~
         </div>
 
-        <div v-if="dataend && cardstore.carddata.length > 0" class="h-50 flex justify-center">
+        <div v-if="isloadingstore.dataend && cardstore.carddata.length > 0" class="h-20 flex justify-center">
             <p>内容已经加载完了~~ </p>
         </div>
-        <div v-if="dataloading" class="flex justify-center h-100">
+        <div v-if="dataloading" class="flex justify-center h-20">
             <div class="flex flex-col items-center">
                 <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <p class="mt-4 text-gray-600">加载中...</p>
             </div>
         </div>
-        <div class="h-50"></div>
+        <div class="h-20"></div>
 
         <button
             @click="openTopicDialog"

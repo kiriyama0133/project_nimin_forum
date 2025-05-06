@@ -7,24 +7,32 @@ import menucomponet from '../components/menucomponet.vue';
 import { useRouter } from 'vue-router';
 import Drawer from 'primevue/drawer';
 import { useDrawerStore} from '../stores/drawer'
+import Button from 'primevue/button';
 // import axiosInstance from '../utils/getCards'
 const drawerStore = useDrawerStore()
 const router = useRouter()
 let isloading = ref(true);
 let screenWidth = ref(window.innerWidth)
-onMounted(() => {window.addEventListener('resize', updateScreenWidth);router.push('/Introduction')});
+onMounted(() => {
+   window.addEventListener('resize', updateScreenWidth);
+   // Redirect logic on mount
+   if (router.currentRoute.value.path === '/' || router.currentRoute.value.path === '/homepage') {
+      router.push('/Introduction');
+   }
+   check_loading();
+});
 function updateScreenWidth() {screenWidth.value = window.innerWidth;console.log(screenWidth.value) }// 更新屏幕宽度
 
 function check_loading(){
    let timer = setInterval(() => {
       if(document.readyState === 'complete')     // 判断页面是否加载完成 定时器
       {
-         const loading = document.getElementById('loading');
-         if (loading) {
+         const loadingElement = document.getElementById('loading');
+         if (loadingElement) {
             // 延迟触发动画
             setTimeout(() => {
-               loading.style.opacity = '0'; // 目标透明度
-               loading.style.backgroundColor = 'rgba(255, 255, 255, 0)';
+               loadingElement.style.opacity = '0'; // 目标透明度
+               loadingElement.style.backgroundColor = 'rgba(255, 255, 255, 0)';
             }, 0); // 延迟 0 毫秒，确保初始样式生效
          setTimeout(() => {
             clearInterval(timer);
@@ -40,26 +48,26 @@ onMounted(() => {
 
 </script>
 <template>
-<body class="overflow-hidden h-screen" style="z-index: 90;">
+<body class="h-screen flex flex-col bg-gray-100">
    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no,maximum-scale=1"> <!-- 禁止缩放 以及允许滚动-->
-   <div class="container-bluid">
-         <div class="col-12">
-            <menubarcomponent/>
-         </div>
-         <div class="relative">
-            <Button v-if="screenWidth < 430" class="drawer-btn rounded-full w-16 bg-pink-100/0" @click="drawerStore.Drawervisible = true">
-               <i class="pi pi-arrow-right"/>
-            </Button>
-         </div>
+   <div class="flex-shrink-0 bg-white shadow-md z-10">
+      <menubarcomponent/>
+      <div class="relative">
+         <Button v-if="screenWidth < 430" class="fixed top-1/4 -left-2 transform translate-y-[-50%] rounded-full w-12 h-12 bg-white/80 shadow-lg p-0 flex items-center justify-center text-gray-600 hover:bg-gray-50 z-50" @click="drawerStore.Drawervisible = true" aria-label="Open Menu">
+            <i class="pi pi-arrow-right text-xl"/>
+         </Button>
+      </div>
    </div>
-   <div class="flex h-full" style="z-index: 80;">
-      <div class="scroll-custom overflow-x-hidden overflow-y-scroll " v-if="screenWidth > 425">
+   <div class="flex flex-1 overflow-hidden">
+      <div class="w-60 flex-shrink-0 overflow-y-auto scroll-custom bg-white shadow" v-if="screenWidth > 425">
          <menucomponet/>
       </div>
-      <div class="p-4 w-full h-full overflow-y-scroll scroll-custom ">
-         <div alt="内容展示页面" class="router-div h-full">
-            <router-view />
-         </div>
+      <div class="flex-1 overflow-y-auto scroll-custom p-4 md:p-6">
+         <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+               <component :is="Component" />
+            </transition>
+         </router-view>
       </div>
    </div>
 
@@ -76,25 +84,30 @@ onMounted(() => {
 </style>
 <style lang="css">
 .scroll-custom::-webkit-scrollbar {
-    width: 4px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 .scroll-custom::-webkit-scrollbar-thumb {
-   background-color: #4b5563;
-   border-radius: 4px;
+   background-color: #a0aec0;
+   border-radius: 3px;
 }
 .scroll-custom::-webkit-scrollbar-track {
-   background-color: #e5e7eb;
-   border-radius: 4px;
+   background-color: #f7fafc;
+   border-radius: 3px;
   }
 body{
    position: relative; 
    cursor: url('@/assets/ani/select_2.png'), pointer;
 }
 .drawer-btn {
-  position: fixed;
-  top: 20%;
-  left: -5%;
-  z-index: 90;
+  /* Style as needed */
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

@@ -231,16 +231,16 @@ const onScrollToBottom = () => {
         还没有人回复哦，快来抢沙发吧！
     </div>
 
-    <div v-if="dataend && sendcardstore.contentdata.length > 0" class="h-50 flex justify-center">
+    <div v-if="dataend && sendcardstore.contentdata.length > 0" class="h-20 flex justify-center">
             <p>所有回复都已经加载完了~~ </p>
         </div>  
-    <div v-if="dataloading" class="flex justify-center h-100 py-4">
+    <div v-if="dataloading" class="flex justify-center h-20 py-4">
                 <div class="flex flex-col items-center">
                 <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                 <p class="mt-4 text-gray-600">加载中...</p>
             </div>
         </div>
-        <div class="h-50"></div> 
+        
 
     <!-- Floating Action Button to Reply to Post -->
     <button

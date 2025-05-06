@@ -21,11 +21,14 @@ import FloatLabel from 'primevue/floatlabel';
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
 import axiosComfirm from '../utils/comfirm'
+import { isloading } from '../stores/isloading';
+const isloadingstore = isloading();
 //动态去得到对应的内容的卡片，并且刷新页面
 function refresh(path: string, api: string, category: string) {
     console.log(`刷新分类: ${category}, 路径: ${path}, API: ${api}`);
     cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
     router.push(path);
+    isloadingstore.dataend = false;
     //第一次加载内容
     axiosInstance.post(api, { skip: 0, category: category }).then((response) => {
         const receivedCards = response.data.data;

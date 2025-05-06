@@ -29,12 +29,9 @@
 <script lang="ts" setup>
 const props = defineProps(['number','id','content','time'])
 import { useRouter } from 'vue-router';
-import axiosInstance from '../utils/getReply'
-import {useCarddata} from '../stores/contentsotre'
 import  'primeicons/primeicons.css'
 import ToggleButton from 'primevue/togglebutton';
 import { ref } from 'vue'
-const sendcardstore = useCarddata()
 const router = useRouter()
 const isfavorate = ref(false)
 const gotoreply = ()=>{
