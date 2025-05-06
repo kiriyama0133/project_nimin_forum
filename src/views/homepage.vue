@@ -8,10 +8,60 @@ import { useRouter } from 'vue-router';
 import Drawer from 'primevue/drawer';
 import { useDrawerStore} from '../stores/drawer'
 import Button from 'primevue/button';
+import { Cookie, CookieResponse } from '../types/cookies';
+import { fetchUserCookies } from '../utils/getCookies';
+import {useCounterStore} from '../stores/login_register';
 // import axiosInstance from '../utils/getCards'
 const drawerStore = useDrawerStore()
 const router = useRouter()
 let isloading = ref(true);
+const userStore = useCounterStore();
+interface CookieInfo {
+  id: string;
+  name: string;
+  status: 'available' | 'in-use' | 'banned';
+  reason?: string;
+}
+const userCookies = ref<CookieInfo[]>([]);
+const bannedCookies = ref<CookieInfo[]>([]);
+const isLoading = ref(false);
+const fetchUserCookieData = async () => {
+  isLoading.value = true;
+  try {
+    const response: CookieResponse = await fetchUserCookies();
+    
+    userCookies.value = [];
+    bannedCookies.value = [];
+
+    const fetchedCookies: Cookie[] = response.data;
+    console.log("Fetched cookies from backend:", fetchedCookies);
+
+    fetchedCookies.forEach(backendCookie => {
+      if (backendCookie.isbanned) {
+        bannedCookies.value.push({
+          id: backendCookie.name,
+          name: backendCookie.name,
+          status: 'banned',
+        });
+      } else {
+        userCookies.value.push({
+          id: backendCookie.name,
+          name: backendCookie.name,
+          status: backendCookie.inused ? 'in-use' : 'available',
+        });
+        userStore.userInfo.username = userCookies.value.find(c => c.status === 'in-use')?.name || '';
+        console.log("检测到了现在正在使用",userStore.userInfo.username)
+      }
+    });
+    console.log("Cookie data processed from backend.");
+  } catch (error: any) {
+    console.error('Failed to fetch user cookie data:', error);
+    userCookies.value = [];
+    bannedCookies.value = [];
+  } finally {
+    isLoading.value = false;
+  }
+};
 let screenWidth = ref(window.innerWidth)
 onMounted(() => {
    window.addEventListener('resize', updateScreenWidth);
@@ -44,6 +94,7 @@ function check_loading(){
 }
 onMounted(() => {
    check_loading();
+   fetchUserCookieData();
 });
 
 </script>

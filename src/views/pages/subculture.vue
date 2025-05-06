@@ -6,6 +6,7 @@ import {useCarddata} from '../../stores/carddata'
 import { ref } from 'vue';
 import { isloading } from '../../stores/isloading';
 import type { SendTopic } from '../../types/sendTopic';
+import { useCounterStore } from '../../stores/login_register';
 // Import PrimeVue components
 import Dialog from 'primevue/dialog';
 import Textarea from 'primevue/textarea';
@@ -21,7 +22,7 @@ const toast = useToast(); // Initialize toast
 const isloadingstore = isloading();
 const cardstore = useCarddata();
 let dataloading = ref(false);
-
+const userStore = useCounterStore();
 // --- State for New Topic Dialog ---
 const isDialogVisible = ref(false);
 const topicText = ref('');
@@ -94,10 +95,9 @@ const handleSendTopic = async () => {
         toast.add({ severity: 'warn', summary: '提示', detail: '请输入内容！', life: 3000 });
         return;
     }
-    const userId = '测试用id';//这里之后替换为从pinia中获取的id
     const currentTime = getCurrentTimeFormatted();
     const cardData: SendTopic = {
-        id: userId,
+        id: userStore.userInfo.username || '',
         content: topicText.value,
         time: currentTime
     };

@@ -11,11 +11,12 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { AddReplyCardClient,ReplyCardRequest,AddReplyCardResponse } from '../types/sendcard';
 import { getCurrentTimeFormatted } from '../utils/getCurrentTimeFormate';
-
+import { useCounterStore } from '../stores/login_register';
 
 const dialog = useDialogStore();
 const sendcardstore = useCarddata()
 const route = useRoute();
+const userStore = useCounterStore();
 let dataend = ref(false);
 let dataloading = ref(false);
 let click_reply = ref(false) //点击回复按钮的标志
@@ -71,7 +72,7 @@ async function send(){
   setTimeout(async () => {
     const replyData: AddReplyCardClient = {
       number: originalPostNumber,
-      id: '测试用id', //回复用户用的名称，后期加入cookie去替代
+      id: userStore.userInfo.username || '', //回复用户用的名称，后期加入cookie去替代
       content: replyContent.value,
       time: getCurrentTimeFormatted(),
       reply: dialog.replyuser || undefined, // 回复的用户

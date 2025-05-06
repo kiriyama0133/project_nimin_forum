@@ -3,18 +3,18 @@ import { ref, onMounted } from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
+import {useCounterStore} from '../stores/login_register';
 import { useToast } from "primevue/usetoast";
-import { addCookie, type CookieApiResponse } from '../utils/getCookies';
-
+import { addCookie, fetchUserCookies, setActiveBackendCookie, type CookieApiResponse } from '../utils/getCookies';
+import type { Cookie, CookieResponse } from '../types/cookies';
+const userStore = useCounterStore();
 const toast = useToast();
-
 interface CookieInfo {
   id: string;
   name: string;
   status: 'available' | 'in-use' | 'banned';
   reason?: string;
 }
-
 const userCookies = ref<CookieInfo[]>([]);
 const bannedCookies = ref<CookieInfo[]>([]);
 const remainingAttempts = ref<number>(0);
@@ -22,20 +22,43 @@ const isLoading = ref(false);
 
 const fetchUserCookieData = async () => {
   isLoading.value = true;
-  console.log("Fetching initial cookie data...");
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  try {
+    const response: CookieResponse = await fetchUserCookies();
+    
+    userCookies.value = [];
+    bannedCookies.value = [];
 
-  userCookies.value = [
-    { id: 'mock-id-1', name: '初始饼干A', status: 'available' },
-    { id: 'mock-id-2', name: '初始饼干B (在用)', status: 'in-use' },
-  ];
-  bannedCookies.value = [
-    { id: 'mock-ban-1', name: '违规饼干X', status: 'banned', reason: '示例原因' }
-  ];
-  remainingAttempts.value = 3;
+    const fetchedCookies: Cookie[] = response.data;
+    console.log("Fetched cookies from backend:", fetchedCookies);
 
-  console.log("Initial cookie data fetched (mocked).");
-  isLoading.value = false;
+    fetchedCookies.forEach(backendCookie => {
+      if (backendCookie.isbanned) {
+        bannedCookies.value.push({
+          id: backendCookie.name,
+          name: backendCookie.name,
+          status: 'banned',
+        });
+      } else {
+        userCookies.value.push({
+          id: backendCookie.name,
+          name: backendCookie.name,
+          status: backendCookie.inused ? 'in-use' : 'available',
+        });
+        userStore.userInfo.username = userCookies.value.find(c => c.status === 'in-use')?.name || '';
+        console.log("检测到了现在正在使用",userStore.userInfo.username)
+      }
+    });
+    
+    console.log("Cookie data processed from backend.");
+
+  } catch (error: any) {
+    console.error('Failed to fetch user cookie data:', error);
+    toast.add({ severity: 'error', summary: '错误', detail: error.message || '获取饼干列表失败', life: 3000 });
+    userCookies.value = [];
+    bannedCookies.value = [];
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 onMounted(() => {
@@ -45,36 +68,30 @@ onMounted(() => {
 const requestNewCookie = async () => {
   isLoading.value = true;
   try {
-    const response: CookieApiResponse = await addCookie();
+    const apiResponse: CookieApiResponse = await addCookie();
     toast.add({
-      severity: response.message.startsWith("Cookie '") ? 'success' : 'warn',
-      summary: response.message.startsWith("Cookie '") ? '成功' : '提示',
-      detail: response.message,
+      severity: apiResponse.message.startsWith("Cookie '") ? 'success' : 'warn',
+      summary: apiResponse.message.startsWith("Cookie '") ? '成功' : '提示',
+      detail: apiResponse.message,
       life: 4000
     });
 
-    if (response.message.startsWith("Cookie '")) {
-      const match = response.message.match(/^Cookie '(.+?)' 添加成功，剩余cookies: (\d+)$/);
+    if (apiResponse.message.startsWith("Cookie '")) {
+      const match = apiResponse.message.match(/^Cookie '(.+?)' 添加成功，剩余cookies: (\d+)$/);
       if (match && match[1] && match[2]) {
-        const newCookieNameFromAPI = match[1];
         const newRemainingAttempts = parseInt(match[2], 10);
-
-        userCookies.value.push({
-          id: `new-${newCookieNameFromAPI}-${Date.now()}`,
-          name: newCookieNameFromAPI,
-          status: 'available'
-        });
         remainingAttempts.value = newRemainingAttempts;
-      } else {
-        console.warn("Could not parse cookie name or remaining attempts from success message:", response.message);
         await fetchUserCookieData();
+      } else {
+        console.warn("Could not parse cookie name or remaining attempts from success message:", apiResponse.message);
+        await fetchUserCookieData(); 
       }
-    } else if (response.message.includes("cookies不足")) {
+    } else if (apiResponse.message.includes("cookies不足")) {
       remainingAttempts.value = 0;
     } else {
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Request new cookie failed unexpectedly:', error);
     toast.add({ severity: 'error', summary: '错误', detail: '申请饼干失败，请稍后再试。', life: 3000 });
   } finally {
@@ -82,23 +99,31 @@ const requestNewCookie = async () => {
   }
 };
 
+//启用饼干的部分
 const setActiveCookie = async (selectedCookie: CookieInfo) => {
   isLoading.value = true;
-  console.log(`Attempting to set cookie "${selectedCookie.name}" as active.`);
-  await new Promise(resolve => setTimeout(resolve, 500));
+  try {
+    const response: CookieApiResponse = await setActiveBackendCookie(selectedCookie.id);
 
-  let previouslyActiveName: string | null = null;
-  userCookies.value.forEach(cookie => {
-    if (cookie.id === selectedCookie.id) {
-      cookie.status = 'in-use';
-    } else if (cookie.status === 'in-use') {
-      previouslyActiveName = cookie.name;
-      cookie.status = 'available';
+    if (response.message === "Cookie启用成功") {
+      toast.add({ severity: 'success', summary: '成功', detail: `饼干 "${selectedCookie.name}" 已成功启用。`, life: 3000 });
+      await fetchUserCookieData();
+    } else {
+      toast.add({ 
+        severity: 'warn', 
+        summary: '启用提示', 
+        detail: response.message || '启用饼干时遇到问题。' , 
+        life: 3000 
+      });
+      await fetchUserCookieData();
     }
-  });
-  toast.add({ severity: 'info', summary: '切换成功', detail: `"${selectedCookie.name}" 已设为当前使用。`, life: 3000 });
-  console.log(`Set cookie "${selectedCookie.name}" as active. Deactivated: "${previouslyActiveName || 'None'}"`);
-  isLoading.value = false;
+  } catch (error: any) {
+    console.error('Failed to set active cookie:', error);
+    toast.add({ severity: 'error', summary: '错误', detail: error.message || '启用饼干失败，请稍后再试。', life: 3000 });
+    await fetchUserCookieData();
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 </script>

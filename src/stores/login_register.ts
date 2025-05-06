@@ -6,6 +6,7 @@ export const useCounterStore = defineStore('user', () => {
   const userInfo = reactive<UserInfo>({
     username: '',
   });
+  const first_cookie_get = ref<boolean>(false);
   let loading = ref<boolean>(false);
   let homepage = ref<string>('login')
   const alert_sucess = ref<boolean>(false);
@@ -23,5 +24,6 @@ export const useCounterStore = defineStore('user', () => {
     is_login,
     homepage,
     loading,
+    first_cookie_get,
   };
 });

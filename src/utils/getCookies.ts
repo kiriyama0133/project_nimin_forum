@@ -1,4 +1,6 @@
 import axios from 'axios';
+import type { CookieResponse } from '../types/cookies';
+
 const axiosInstance = 
 axios.create({
     baseURL: 'https://localhost:8000/api/v1/cookies', // 后端服务的基础 URL
@@ -21,9 +23,9 @@ axios.create({
         config.headers = config.headers || {};
         // 添加 Bearer Token
         config.headers['Authorization'] = `Bearer ${token}`;
-        console.log("axiosInstance: Adding Authorization header");
+        // console.log("axiosInstance: Adding Authorization header");
       } else {
-        console.log("axiosInstance: No token found, request sent without Authorization header");
+        // console.log("axiosInstance: No token found, request sent without Authorization header");
       }
       // ------------------------
       
@@ -41,9 +43,7 @@ axios.create({
   axiosInstance.interceptors.response.use(
     (response) => {
       //对响应数据进行处理
-      console.log('Response:', response);
-      // console.log('获取到的卡片数据：', response.data); //json数据集
-      // console.log('获取到的里层数据：', response.data.data); //列表
+      // console.log('Response:', response);
       return response; // 直接返回响应数据
     },
     (error) => {
@@ -56,15 +56,14 @@ axios.create({
   //导出封装的 Axios 实例
   export default axiosInstance;
 
+// --- Shared Interface for API responses that return a simple message ---
 export interface CookieApiResponse {
   message: string;
 }
 
+// --- Function to add a new cookie ---
 export const addCookie = async (): Promise<CookieApiResponse> => {
   try {
-    // Make the GET request relative to the axiosInstance.defaults.baseURL
-    // which is 'https://localhost:8000/api/v1/cookies'
-    // This will target 'https://localhost:8000/api/v1/cookies/addcookie'
     const response = await axiosInstance.get<CookieApiResponse>('addcookie');
     return response.data; 
   } catch (error: any) {
@@ -78,5 +77,48 @@ export const addCookie = async (): Promise<CookieApiResponse> => {
     } else {
       return { message: '添加Cookie时发生未知错误，请稍后再试。' };
     }
+  }
+};
+
+// --- Function to fetch user cookies ---
+// Uses CookieResponse from ../types/cookies.ts
+export const fetchUserCookies = async (): Promise<CookieResponse> => {
+  try {
+    const response = await axiosInstance.get<CookieResponse>('getcookie');
+    return response.data;
+  } catch (error: any) {
+    console.error('Error calling /api/v1/cookies/getcookie API:', error);
+    if (error.response && error.response.data) {
+      throw new Error(error.response.data.detail || error.response.data.message || '获取Cookie列表失败');
+    } else if (error.request) {
+      throw new Error('无法连接到服务器，获取Cookie列表失败。');
+    }
+    throw new Error('获取Cookie列表时发生未知错误。');
+  }
+};
+
+// --- Interface for the /use_cookie payload ---
+export interface UseCookiePayload {
+  name: string;
+}
+
+// --- Function to set a cookie as active on the backend ---
+// Returns CookieApiResponse
+export const setActiveBackendCookie = async (cookieName: string): Promise<CookieApiResponse> => {
+  try {
+    const payload: UseCookiePayload = { name: cookieName };
+    // POST request to /api/v1/cookies/use_cookie
+    const response = await axiosInstance.post<CookieApiResponse>('use_cookie', payload);
+    return response.data; // Expects a Message object { message: string }
+  } catch (error: any) {
+    console.error('Error calling /api/v1/cookies/use_cookie API:', error);
+    if (error.response && error.response.data && typeof error.response.data.message === 'string') {
+      return { message: error.response.data.message };
+    } else if (error.response && error.response.data && typeof error.response.data.detail === 'string') {
+      return { message: error.response.data.detail };
+    } else if (error.request) {
+      return { message: '无法连接到服务器，启用Cookie失败。' };
+    }
+    return { message: '启用Cookie时发生未知错误。' };
   }
 };
