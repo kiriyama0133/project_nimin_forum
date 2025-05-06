@@ -1,50 +1,92 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
-import { useToast } from "primevue/usetoast"; // Import if needed for user feedback
+import { useToast } from "primevue/usetoast";
+import { addCookie, type CookieApiResponse } from '../utils/getCookies';
 
-const toast = useToast(); // Initialize if using
+const toast = useToast();
 
 interface CookieInfo {
   id: string;
   name: string;
-  status: 'available' | 'in-use' | 'banned'; // Status types
-  reason?: string; // For banned cookies
+  status: 'available' | 'in-use' | 'banned';
+  reason?: string;
 }
 
-// Combined list for user's non-banned cookies
-const userCookies = ref<CookieInfo[]>([
-  { id: 'req1', name: '饼干A', status: 'available' },
-  { id: 'req2', name: '饼干B', status: 'available' },
-  { id: 'use1', name: '饼干C (之前默认使用)', status: 'in-use' },
-]);
+const userCookies = ref<CookieInfo[]>([]);
+const bannedCookies = ref<CookieInfo[]>([]);
+const remainingAttempts = ref<number>(0);
+const isLoading = ref(false);
 
-const bannedCookies = ref<CookieInfo[]>([
-  { id: 'ban1', name: '饼干D (违规)', status: 'banned', reason: '滥用权限' },
-  { id: 'ban2', name: '饼干E (过期)', status: 'banned', reason: '已过期自动封禁' },
-]);
+const fetchUserCookieData = async () => {
+  isLoading.value = true;
+  console.log("Fetching initial cookie data...");
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
-const remainingAttempts = ref<number>(3);
+  userCookies.value = [
+    { id: 'mock-id-1', name: '初始饼干A', status: 'available' },
+    { id: 'mock-id-2', name: '初始饼干B (在用)', status: 'in-use' },
+  ];
+  bannedCookies.value = [
+    { id: 'mock-ban-1', name: '违规饼干X', status: 'banned', reason: '示例原因' }
+  ];
+  remainingAttempts.value = 3;
 
-const requestNewCookie = () => {
-  if (remainingAttempts.value > 0) {
-    remainingAttempts.value--;
-    const newCookieId = `cookie-${Date.now().toString().slice(-6)}`;
-    userCookies.value.push({
-      id: newCookieId,
-      name: `新饼干 ${newCookieId.slice(-4)}`,
-      status: 'available'
+  console.log("Initial cookie data fetched (mocked).");
+  isLoading.value = false;
+};
+
+onMounted(() => {
+  fetchUserCookieData();
+});
+
+const requestNewCookie = async () => {
+  isLoading.value = true;
+  try {
+    const response: CookieApiResponse = await addCookie();
+    toast.add({
+      severity: response.message.startsWith("Cookie '") ? 'success' : 'warn',
+      summary: response.message.startsWith("Cookie '") ? '成功' : '提示',
+      detail: response.message,
+      life: 4000
     });
-    toast.add({ severity: 'success', summary: '成功', detail: '新饼干已申请！', life: 3000 });
-  } else {
-    console.log('No remaining attempts to request a new cookie.');
-    toast.add({ severity: 'warn', summary: '提示', detail: '没有剩余申请次数了。', life: 3000 });
+
+    if (response.message.startsWith("Cookie '")) {
+      const match = response.message.match(/^Cookie '(.+?)' 添加成功，剩余cookies: (\d+)$/);
+      if (match && match[1] && match[2]) {
+        const newCookieNameFromAPI = match[1];
+        const newRemainingAttempts = parseInt(match[2], 10);
+
+        userCookies.value.push({
+          id: `new-${newCookieNameFromAPI}-${Date.now()}`,
+          name: newCookieNameFromAPI,
+          status: 'available'
+        });
+        remainingAttempts.value = newRemainingAttempts;
+      } else {
+        console.warn("Could not parse cookie name or remaining attempts from success message:", response.message);
+        await fetchUserCookieData();
+      }
+    } else if (response.message.includes("cookies不足")) {
+      remainingAttempts.value = 0;
+    } else {
+    }
+
+  } catch (error) {
+    console.error('Request new cookie failed unexpectedly:', error);
+    toast.add({ severity: 'error', summary: '错误', detail: '申请饼干失败，请稍后再试。', life: 3000 });
+  } finally {
+    isLoading.value = false;
   }
 };
 
-const setActiveCookie = (selectedCookie: CookieInfo) => {
+const setActiveCookie = async (selectedCookie: CookieInfo) => {
+  isLoading.value = true;
+  console.log(`Attempting to set cookie "${selectedCookie.name}" as active.`);
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   let previouslyActiveName: string | null = null;
   userCookies.value.forEach(cookie => {
     if (cookie.id === selectedCookie.id) {
@@ -56,7 +98,7 @@ const setActiveCookie = (selectedCookie: CookieInfo) => {
   });
   toast.add({ severity: 'info', summary: '切换成功', detail: `"${selectedCookie.name}" 已设为当前使用。`, life: 3000 });
   console.log(`Set cookie "${selectedCookie.name}" as active. Deactivated: "${previouslyActiveName || 'None'}"`);
-  // Here you would typically also notify your backend/update global state
+  isLoading.value = false;
 };
 
 </script>
@@ -84,7 +126,6 @@ const setActiveCookie = (selectedCookie: CookieInfo) => {
               </p>
             </div>
             <p v-else class="text-gray-500 italic">当前没有选择使用的饼干。</p>
-            <!-- You can add other account related info here -->
           </template>
         </Card>
       </div>

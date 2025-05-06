@@ -1,7 +1,7 @@
 import axios from 'axios';
 const axiosInstance = 
 axios.create({
-    baseURL: 'https://localhost:8000/api/v1/cards', // 后端服务的基础 URL
+    baseURL: 'https://localhost:8000/api/v1/cookies', // 后端服务的基础 URL
     timeout: 5000, // 请求超时时间（毫秒）
     headers: {
       'Content-Type': 'application/json', // 默认请求头
@@ -62,26 +62,20 @@ export interface CookieApiResponse {
 
 export const addCookie = async (): Promise<CookieApiResponse> => {
   try {
-    // The backend is expected to always return a JSON object with a 'message' field,
-    // even for logical errors like "cookies不足", with a 200 OK status.
-    const response = await axiosInstance.get<CookieApiResponse>('/addcookie');
-    return response.data;
+    // Make the GET request relative to the axiosInstance.defaults.baseURL
+    // which is 'https://localhost:8000/api/v1/cookies'
+    // This will target 'https://localhost:8000/api/v1/cookies/addcookie'
+    const response = await axiosInstance.get<CookieApiResponse>('addcookie');
+    return response.data; 
   } catch (error: any) {
-    console.error('Error calling /addcookie API:', error);
-
-    // This catch block handles network errors or unexpected server errors
-    // (e.g., 500, or 4xx if not handled by the backend to return a Message object).
+    console.error('Error calling /api/v1/cookies/addcookie API:', error);
     if (error.response && error.response.data && typeof error.response.data.message === 'string') {
-      // If the server did return an error response with a 'message' field (e.g. some specific error middleware)
       return { message: error.response.data.message };
     } else if (error.response && error.response.data && typeof error.response.data.detail === 'string') {
-      // FastAPI validation errors often use 'detail'
       return { message: error.response.data.detail };
     } else if (error.request) {
-      // The request was made but no response was received
       return { message: '无法连接到服务器，请检查您的网络连接并稍后再试。' };
     } else {
-      // Something else happened in setting up the request that triggered an Error
       return { message: '添加Cookie时发生未知错误，请稍后再试。' };
     }
   }
