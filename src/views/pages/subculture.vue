@@ -111,6 +111,8 @@ const handleSendTopic = async () => {
       const response = await axiosInstance.post('/addcard', cardData); // Send data
 
       console.log("发送成功:", response.data);
+      // 发送成功后，发送获取卡片请求
+      submitregister();
       toast.add({ severity: 'success', summary: '成功', detail: response.data.message || '发送成功！', life: 3000 });
 
       // --- TODO: Optionally refresh the card list after successful post ---

@@ -81,11 +81,12 @@ async function send(){
       console.log('Sending reply:', replyData);
       const response = await axiosInstance.post('/addreplycard', replyData);
       console.log('Reply sent successfully:', response.data);
-
+      // The line below implements the refresh
+      
       dialog.Dialogvisible = false;
       replyContent.value = ''; // 回复的内容
       open1(); // Shows success message
-      fetchReplies(true);
+      fetchReplies(true); // Fetches the first page of replies
     } catch (error: any) {
       console.error('Failed to send reply:', error);
       const errorMessage = error.response?.data?.detail || error.response?.data?.message || '回复失败，请稍后再试';
@@ -130,15 +131,23 @@ const fetchReplies = async (isInitialLoad = false) => {
     if (response.data && Array.isArray(response.data.data)) {
       if (isInitialLoad) {
         sendcardstore.contentdata = response.data.data;
+        dataend.value = false; // Explicitly reset dataend for initial load
       } else {
-        sendcardstore.contentdata.push(...response.data.data);
+        // Only append if there's new data
+        if (response.data.data.length > 0) {
+            sendcardstore.contentdata.push(...response.data.data);
+        }
       }
       console.log('Replies received:', response.data.data);
       console.log('Current total replies:', sendcardstore.contentdata);
-      if (response.data.data.length < 5) { // Assuming page size is 5, if less, then it's the end
-        console.log('All replies loaded or last page received.');
+      
+      // If fewer items than page size (e.g., 5 based on previous logic) are returned, it's the end.
+      if (response.data.data.length < 5) { 
+        console.log('All replies loaded or last page received (less than page size).');
         dataend.value = true;
       }
+      // If isInitialLoad was true and a full page was loaded, dataend is already false.
+      // If it was a subsequent load and a full page was loaded, dataend also remains false (unless the above condition met).
     } else {
       console.warn('No data received or data format is incorrect for replies.');
       dataend.value = true; // Assume end if data is not as expected
