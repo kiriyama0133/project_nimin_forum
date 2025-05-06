@@ -228,12 +228,12 @@ const onScrollToBottom = () => {
             这个板块还没有内容哦~
         </div>
 
-        <div v-if="isloadingstore.dataend && cardstore.carddata.length > 0" class="h-20 flex justify-center">
+        <div v-if="isloadingstore.dataend && cardstore.carddata.length > 0" class="h-20 flex justify-center items-center text-gray-500">
             <p>内容已经加载完了~~ </p>
         </div>
-        <div v-if="dataloading" class="flex justify-center h-20">
+        <div v-if="dataloading" class="flex justify-center h-20 py-4 items-center">
             <div class="flex flex-col items-center">
-                <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" style="border-radius: 50%;"></div>
                 <p class="mt-4 text-gray-600">加载中...</p>
             </div>
         </div>
