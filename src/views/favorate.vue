@@ -67,7 +67,7 @@ const onScrollToBottom = () => {
         <div v-if="dataend==true" class="h-50 flex justify-center">
             <p>内容已经加载完了~~ </p>
         </div>
-            <div v-if="dataloading==true" class="flex justify-center h-30">
+            <div v-if="dataloading==true" class="flex justify-center h-12">
                 <!-- 加载容器 -->
                 <div class="flex flex-col items-center">
                 <!-- 转圈动画 -->

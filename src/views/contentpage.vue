@@ -3,20 +3,32 @@ import sendcard from '../components/sendcard.vue';
 import { ElMessage } from 'element-plus'
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
+import Textarea from 'primevue/textarea';
 import {useDialogStore} from '../stores/dialog'
-import axiosInstance from '../utils/getReply'
+import axiosInstance from '../utils/getCards'
 import {useCarddata} from '../stores/contentsotre.ts'
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
+import { AddReplyCardClient,ReplyCardRequest,AddReplyCardResponse } from '../types/sendcard';
+import { getCurrentTimeFormatted } from '../utils/getCurrentTimeFormate';
+
+
 const dialog = useDialogStore();
 const sendcardstore = useCarddata()
 const route = useRoute();
 let dataend = ref(false);
 let dataloading = ref(false);
 let click_reply = ref(false) //点击回复按钮的标志
+const replyContent = ref(''); // Ref for the reply input in the dialog
 
+// --- Function to open dialog for a direct reply to the post ---
+const openDirectReplyDialog = () => {
+  dialog.replyuser = ''; // Clear any specific user being replied to
+  replyContent.value = ''; // Clear previous reply text
+  dialog.Dialogvisible = true;
+};
 
+//成功信息提示
 const open1 = () => {
   ElMessage({
     message: '回复成功！😊',
@@ -24,102 +36,169 @@ const open1 = () => {
     plain: true,
   })
 }
-//发送按钮的函数
-function send(){
-  click_reply.value = true
-  setTimeout(() => {
-    dialog.Dialogvisible = false
-    click_reply.value = false
-    open1()
-  }, 2000);
+
+//错误信息提示
+const open_error = (message: string) => {
+  ElMessage({
+    message: message + '😥',
+    type: 'error',
+    plain: true,
+  })
 }
-//回复模块的数据示例
-const submitregister = async () => {
-  dataloading.value = true; // 开始加载
+
+//发送按钮的函数
+async function send(){
+  if (!replyContent.value.trim()) {
+    open_error('回复内容不能为空！');
+    return;
+  }
+
+  click_reply.value = true;
+
+  const originalPostNumberStr = route.query.number as string;
+  if (!originalPostNumberStr) {
+      open_error('无效的帖子编号。');
+      click_reply.value = false;
+      return;
+  }
+  const originalPostNumber = parseInt(originalPostNumberStr);
+   if (isNaN(originalPostNumber)) {
+      open_error('帖子编号格式错误。');
+      click_reply.value = false;
+      return;
+  }
+
+  setTimeout(async () => {
+    const replyData: AddReplyCardClient = {
+      number: originalPostNumber,
+      id: '测试用id', //回复用户用的名称，后期加入cookie去替代
+      content: replyContent.value,
+      time: getCurrentTimeFormatted(),
+      reply: dialog.replyuser || undefined, // 回复的用户
+    };
+
+    try {
+      console.log('Sending reply:', replyData);
+      const response = await axiosInstance.post('/addreplycard', replyData);
+      console.log('Reply sent successfully:', response.data);
+
+      dialog.Dialogvisible = false;
+      replyContent.value = ''; // 回复的内容
+      open1(); // Shows success message
+      fetchReplies(true);
+    } catch (error: any) {
+      console.error('Failed to send reply:', error);
+      const errorMessage = error.response?.data?.detail || error.response?.data?.message || '回复失败，请稍后再试';
+      open_error(errorMessage);
+    } finally {
+      click_reply.value = false;
+    }
+  }, 1000);
+}
+
+// --- Function to fetch replies for the current post ---
+const fetchReplies = async (isInitialLoad = false) => {
+  if (dataloading.value || dataend.value && !isInitialLoad) return; // Don't fetch if already loading or all data loaded (unless initial)
+
+  dataloading.value = true;
+  const postNumberStr = route.query.number as string;
+  if (!postNumberStr) {
+    console.error('Post number is missing from route query.');
+    open_error('无法加载回复：帖子编号缺失。');
+    dataloading.value = false;
+    dataend.value = true; // Prevent further loading attempts
+    return;
+  }
+  const postNumber = parseInt(postNumberStr);
+  if (isNaN(postNumber)) {
+    console.error('Invalid post number in route query:', postNumberStr);
+    open_error('无法加载回复：帖子编号格式错误。');
+    dataloading.value = false;
+    dataend.value = true; // Prevent further loading attempts
+    return;
+  }
+
+  const requestPayload: ReplyCardRequest = {
+    number: postNumber,
+    skip: isInitialLoad ? 0 : sendcardstore.contentdata.length
+  };
+
   try {
-    const response = await axiosInstance.get('/getsendCard');
-    console.log('Registration Successful:', response);
-    sendcardstore.contentdata.push(response.data);
-    console.log('目前已得到的卡片数据：', sendcardstore.contentdata);
+    console.log('Fetching replies with payload:', requestPayload);
+    const response = await axiosInstance.post<AddReplyCardResponse>('/getreplycard', requestPayload);
+    
+    if (response.data && Array.isArray(response.data.data)) {
+      if (isInitialLoad) {
+        sendcardstore.contentdata = response.data.data;
+      } else {
+        sendcardstore.contentdata.push(...response.data.data);
+      }
+      console.log('Replies received:', response.data.data);
+      console.log('Current total replies:', sendcardstore.contentdata);
+      if (response.data.data.length < 5) { // Assuming page size is 5, if less, then it's the end
+        console.log('All replies loaded or last page received.');
+        dataend.value = true;
+      }
+    } else {
+      console.warn('No data received or data format is incorrect for replies.');
+      dataend.value = true; // Assume end if data is not as expected
+    }
   } catch (error) {
-    console.error('请求失败:', error);
+    console.error('Failed to fetch replies:', error);
+    open_error('加载回复失败。');
+    // dataend.value = true; // Optionally, set to true to prevent repeated failed attempts on scroll
   } finally {
-    dataloading.value = false; // 加载完成
+    dataloading.value = false;
   }
 };
+
 onMounted(()=>{
+  // Clear previous post's replies and reset flags when component mounts for a new post
+  sendcardstore.contentdata = [];
+  dataend.value = false;
+  dataloading.value = false; // Ensure loading is false before initial fetch
+  fetchReplies(true); // Fetch initial replies for the current post
 })
+
 // 滚动事件处理函数
 const scrollContainer = ref<HTMLElement | null>(null); // 定义模板引用
 const handleScroll = () => {
   if (!scrollContainer.value) return; // 确保引用存在
-  const scrollTop = scrollContainer.value.scrollTop;
-  const clientHeight = scrollContainer.value.clientHeight;
-  const scrollHeight = scrollContainer.value.scrollHeight;
-//   console.log('滚动位置：', scrollTop);
-//   console.log('容器高度：', clientHeight);
-//   console.log('容器总高度：', scrollHeight);
+  const { scrollTop, clientHeight, scrollHeight } = scrollContainer.value;
   // 判断是否滚动到底部
-  const onScrollToBottom = () => {
-  console.log("滚动到底部了！");
-  dataloading.value = true;
-  setTimeout(() => {
-    submitregister().then(()=>{
-        console.log("数据加载完毕")
-        dataloading.value = false;
-}); //添加新一轮的数据
-  // 在这里触发你的逻辑，比如加载更多数据
-  }, 1000);
-};
-  if (scrollTop + clientHeight >= scrollHeight) {
+  if (scrollTop + clientHeight >= scrollHeight - 10) { // Trigger a bit before exact bottom
     onScrollToBottom();
   }
 };
-/*let carddata_: sendcarddata[] = [
-    {
-    id:"Kiriyama",
-    content:"你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面你好，这里是第一条发言,点击可以进入内容页面",
-    thumbs:0
-    },
-    {
-    id:"KJHKJHJ",
-    reply:"Kiriyama",
-    content:"你好，这里是一条回复，回复内容会被加以粉色装饰",
-    thumbs:0
-    },
-    {
-    id:"Kiriyama",
-    content:"你好",
-    thumbs:0
-    },
-    {
-    id:"Kiriyama",
-    content:"你好",
-    thumbs:0
-    },   
-]*/
+
+const onScrollToBottom = () => {
+  console.log("滚动到底部了！ attempting to load more replies...");
+  // dataloading and dataend checks are handled inside fetchReplies
+  fetchReplies(); // Load next page of replies
+};
+
 </script>
 <template>
   <div @scroll="handleScroll"
-  ref="scrollContainer" class="subculture scroll-custom h-full overflow-y-auto">
+  ref="scrollContainer" class="subculture scroll-custom h-full overflow-y-auto relative">
   <div class="flex flex-col gap-1 p-2">
         <sendcard
-            :number="route.query.number"
-            :id="route.query.id"
-            :time = "route.query.time"
+            :number="Number(route.query.number) || 0"
+            :id="String(route.query.id || '')"
+            :time ="String(route.query.time || '')"
             :index="0"
-            :content="route.query.content"
+            :content="String(route.query.content || '')"
         >
     </sendcard>
     </div>
   <div class="card flex justify-center">
         <Dialog v-model:visible="dialog.Dialogvisible" modal header="回复" :style="{ width: '25rem' }">
             <div class="flex items-center gap-4 mb-4">
-                <label for="username" class="font-semibold w-24">回复的用户</label>
-                <p>{{ dialog.replyuser }}</p>
+                <label for="username" class="font-semibold w-24">{{ dialog.replyuser ? '回复用户' : '回复帖子' }}</label>
+                <p v-if="dialog.replyuser">{{ dialog.replyuser }}</p>
             </div>
             <div class="flex items-center gap-4 mb-8">
-                <InputText id="email" class="flex-auto" autocomplete="off"></InputText>   
+                <Textarea v-model="replyContent" id="replyInput" class="w-full resize-none" rows="5" placeholder="说点什么吧..." />   
             </div>
             <div class="flex justify-end gap-2">
                 <Button type="button" label="取消" severity="secondary" @click="dialog.Dialogvisible = false"></Button>
@@ -135,9 +214,10 @@ const handleScroll = () => {
         </Dialog>
     </div>
     <h2 class="text-lg mb-3">以下是帖No.{{route.query.number}}的回复</h2>
-    <div class="flex flex-col gap-1 p-2">
+    <div class="flex flex-col gap-1 p-2" v-if="sendcardstore.contentdata.length > 0">
         <sendcard v-for="(item,i) in sendcardstore.contentdata"
-            :number="item.number"
+            :key="item.id + '-' + i" 
+            :number="item.number" 
             :id="item.id"
             :index="i+1"
             :reply="item.reply"
@@ -147,19 +227,31 @@ const handleScroll = () => {
         >
     </sendcard>
     </div>
-    <div v-if="dataend==true" class="h-50 flex justify-center">
-            <p>内容已经加载完了~~ </p>
+    <div v-if="sendcardstore.contentdata.length === 0 && !dataloading && dataend" class="text-center p-4 text-gray-500">
+        还没有人回复哦，快来抢沙发吧！
+    </div>
+
+    <div v-if="dataend && sendcardstore.contentdata.length > 0" class="h-50 flex justify-center">
+            <p>所有回复都已经加载完了~~ </p>
         </div>  
-    <div v-if="dataloading==true" class="flex justify-center h-100">
-                <!-- 加载容器 -->
+    <div v-if="dataloading" class="flex justify-center h-100 py-4">
                 <div class="flex flex-col items-center">
-                <!-- 转圈动画 -->
                 <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <!-- 加载文字 -->
                 <p class="mt-4 text-gray-600">加载中...</p>
             </div>
         </div>
         <div class="h-50"></div> 
+
+    <!-- Floating Action Button to Reply to Post -->
+    <button
+        @click="openDirectReplyDialog"
+        title="回复帖子"
+        class="fixed bottom-5 right-5 w-10 h-10 bg-black text-white rounded-full shadow-lg
+                flex items-center justify-center
+                hover:bg-gray-700 transition-colors duration-200 z-20">
+        <i class="pi pi-send text-xl"></i> <!-- Changed icon to pi-send -->
+    </button>
+
     </div>
 </template>
 <style scoped>

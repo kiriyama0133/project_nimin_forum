@@ -8,7 +8,7 @@
                     <div class="flex gap-4 justify-between">
                         <div>
                             <p>No.{{ number }}</p>
-                            <p>id:{{ id }}</p>
+                            <p>{{ id }}</p>
                         </div>
                             <p style="font-size: xx-small;">{{ time }}</p>
                          </div>
