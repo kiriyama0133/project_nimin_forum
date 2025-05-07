@@ -252,6 +252,7 @@ const onScrollToBottom = () => {
                 :time="item.time"
                 :id="item.id"
                 :content="item.content"
+                :thumbs="item.thumbs"
             >
             </defaultcard>
         </div>

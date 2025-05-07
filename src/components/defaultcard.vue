@@ -27,7 +27,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-const props = defineProps(['number','id','content','time'])
+const props = defineProps(['number','id','content','time','thumbs'])
 import { useRouter } from 'vue-router';
 import  'primeicons/primeicons.css'
 import ToggleButton from 'primevue/togglebutton';
@@ -41,7 +41,8 @@ const gotoreply = ()=>{
       number: props.number,
       id: props.id,
       time: props.time,
-      content: props.content
+      content: props.content,
+      thumbs: Number(props.thumbs)
     }
   });
 };

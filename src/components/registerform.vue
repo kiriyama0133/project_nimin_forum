@@ -6,7 +6,7 @@ import { ref } from 'vue';
 import type { UserRegister } from '../client';
 
 const store = useCounterStore();
-OpenAPI.BASE = 'https://localhost:8000';
+OpenAPI.BASE = 'http://localhost:8000';
 
 function goToLogin() {
   store.homepage = 'login';

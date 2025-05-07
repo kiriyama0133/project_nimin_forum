@@ -198,8 +198,8 @@ const onScrollToBottom = () => {
             :time ="String(route.query.time || '')"
             :index="0"
             :content="String(route.query.content || '')"
-        >
-    </sendcard>
+            :thumbs="Number(route.query.thumbs)">
+        </sendcard>
     </div>
   <div class="card flex justify-center">
         <Dialog v-model:visible="dialog.Dialogvisible" modal header="回复" :style="{ width: '25rem' }">

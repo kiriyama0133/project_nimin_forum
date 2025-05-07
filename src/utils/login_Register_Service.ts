@@ -1,7 +1,7 @@
 import axios from 'axios';
 const axiosComfirm = 
 axios.create({
-    baseURL: 'https://localhost:8000/api/v1', // 后端服务的基础 URL
+    baseURL: 'http://localhost:8000/api/v1', // 后端服务的基础 URL
     timeout: 5000, // 请求超时时间（毫秒）
     headers: {
       'Content-Type': 'application/json', // 默认请求头

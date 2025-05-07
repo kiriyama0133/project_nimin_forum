@@ -3,4 +3,5 @@ export interface carddata{
     id:string,
     content:string,
     time:string
+    thumbs:number
 }
