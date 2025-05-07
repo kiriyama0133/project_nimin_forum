@@ -9,3 +9,7 @@ export interface Cookie{
 export interface CookieResponse{
     data: Cookie[];
 }
+
+export interface UserCookieNumberResponse{
+    number: number;
+}

@@ -48,6 +48,21 @@ const router = createRouter({
           component: () => import('../views/pages/subculture.vue'),
         },
         {
+          path: '/create',
+          name: '创作',
+          component: () => import('../views/pages/create.vue'),
+        },
+        {
+          path: '/game',
+          name: '游戏',
+          component: () => import('../views/pages/game.vue'),
+        },
+        {
+          path: '/life',
+          name: '生活',
+          component: () => import('../views/pages/life.vue'),
+        },
+        {
           path: '/settings',
           name: '设置',
           component: () => import('../views/settings.vue'), 

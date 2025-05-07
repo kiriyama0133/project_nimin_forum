@@ -5,8 +5,8 @@ import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import {useCounterStore} from '../stores/login_register';
 import { useToast } from "primevue/usetoast";
-import { addCookie, fetchUserCookies, setActiveBackendCookie, type CookieApiResponse } from '../utils/getCookies';
-import type { Cookie, CookieResponse } from '../types/cookies';
+import { addCookie, fetchUserCookies, getUserCookieNumber, setActiveBackendCookie, type CookieApiResponse } from '../utils/getCookies';
+import type { Cookie, CookieResponse, UserCookieNumberResponse } from '../types/cookies';
 const userStore = useCounterStore();
 const toast = useToast();
 interface CookieInfo {
@@ -20,6 +20,19 @@ const bannedCookies = ref<CookieInfo[]>([]);
 const remainingAttempts = ref<number>(0);
 const isLoading = ref(false);
 
+//获取用户获取cookie的剩余次数
+const fetchUserCookieNumber = async () => {
+  isLoading.value = true;
+  try {
+    const response: UserCookieNumberResponse = await getUserCookieNumber();
+    remainingAttempts.value = response.number;
+  } catch (error: any) {
+    console.error('Failed to fetch user cookie number:', error);
+    toast.add({ severity: 'error', summary: '错误', detail: error.message || '获取饼干剩余次数失败', life: 3000 });
+  } finally {
+    isLoading.value = false;
+  }
+}
 const fetchUserCookieData = async () => {
   isLoading.value = true;
   try {
@@ -63,6 +76,7 @@ const fetchUserCookieData = async () => {
 
 onMounted(() => {
   fetchUserCookieData();
+  fetchUserCookieNumber();
 });
 
 const requestNewCookie = async () => {

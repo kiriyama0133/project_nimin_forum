@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { CookieResponse } from '../types/cookies';
+import type { CookieResponse, UserCookieNumberResponse } from '../types/cookies';
 
 const axiosInstance = 
 axios.create({
@@ -122,3 +122,14 @@ export const setActiveBackendCookie = async (cookieName: string): Promise<Cookie
     return { message: '启用Cookie时发生未知错误。' };
   }
 };
+
+// 获取用户的获取cookie的剩余次数
+export const getUserCookieNumber = async (): Promise<UserCookieNumberResponse> => {
+    try {
+        const response = await axiosInstance.get<UserCookieNumberResponse>('getusercookienum');
+        return response.data;
+    } catch (error: any) {
+        console.error('Error calling /api/v1/cookies/getusercookienum API:', error);
+        throw new Error('获取用户获取cookie的剩余次数失败。');
+    }
+}
