@@ -104,7 +104,9 @@ onMounted(() => {
    <div class="flex-shrink-0 bg-white shadow-md z-10">
       <menubarcomponent/>
       <div class="relative">
-         <Button v-if="screenWidth < 430" class="fixed top-1/4 -left-2 transform translate-y-[-50%] rounded-full w-12 h-12 bg-white/80 shadow-lg p-0 flex items-center justify-center text-gray-600 hover:bg-gray-50 z-50" @click="drawerStore.Drawervisible = true" aria-label="Open Menu">
+         <Button v-if="screenWidth < 430" class="fixed top-1/4 -left-2 transform 
+         translate-y-[0%] rounded-full w-12 h-10 bg-white/80 shadow-lg p-0 flex items-center justify-center 
+         text-gray-600 hover:bg-gray-50 z-50" @click="drawerStore.Drawervisible = true" aria-label="Open Menu">
             <i class="pi pi-arrow-right text-xl"/>
          </Button>
       </div>

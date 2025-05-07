@@ -176,7 +176,8 @@ const submitregister = async () => {
       cardstore.carddata.push(...receivedCards);
       console.log('已添加数据：', receivedCards);
       console.log('目前总卡片数据：', cardstore.carddata);
-      if (receivedCards.length === 0) {
+      if (receivedCards.length < 5) {
+        console.log("分类",cardstore.category,"的卡片数据不足5条，已设置为已结束。")
         isloadingstore.dataend = true;
       }
     } else {

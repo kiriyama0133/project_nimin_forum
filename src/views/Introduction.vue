@@ -7,7 +7,7 @@ function drawer() {
 }
 </script>
 <template>
-    <div class="mx-auto h-[600px] flex justify-center items-center gap-x-10 rounded-xl bg-white p-2 shadow-2xl outline outline-black/5
+    <div class="mx-auto h-[700px] flex justify-center items-center gap-x-10 rounded-xl bg-white p-2 shadow-2xl outline outline-black/5
      dark:bg-slate-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10">
         <img class="size-30 shrink-0 object-cover max-h-50" src="../assets/bg/defalut.jpg" alt="ChitChat Logo" />
         <div>
