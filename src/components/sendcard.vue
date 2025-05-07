@@ -9,7 +9,6 @@
                 <div style="font-size: xx-small;">
                   <p>{{ props.time }}</p>
                   <p :alt="props.index">层数：{{ props.index }}</p>
-                  <p style="font-size:medium;">点赞数：{{ props.thumbs }}</p>
                 </div>
               </div>
             </slot>
@@ -35,7 +34,9 @@
                 off-icon="pi pi-thumbs-up"
                 on-icon="pi pi-thumbs-up-fill"
                 class="w-20"
-                aria-label="点赞操作" />
+                aria-label="点赞操作" 
+                :off-label="props.thumbs.toString()"
+                :on-label="(Number(props.thumbs) + 1).toString()"/>
               </div>
               <Button :alt="props.index" @click="refresh" variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="回复" icon="pi pi-reply" />
             </slot>
