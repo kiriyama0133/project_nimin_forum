@@ -99,7 +99,8 @@ const handleSendTopic = async () => {
     const cardData: SendTopic = {
         id: userStore.userInfo.username || '',
         content: topicText.value,
-        time: currentTime
+        time: currentTime,
+        category: cardstore.category
     };
 
     console.log("准备发送话题:", cardData);
@@ -109,10 +110,9 @@ const handleSendTopic = async () => {
 
     try {
       const response = await axiosInstance.post('/addcard', cardData); // Send data
-
       console.log("发送成功:", response.data);
-      // 发送成功后，发送获取卡片请求
-      submitregister();
+      refresh('/subculture', '/getcard', cardstore.category);
+      //发送成功后，从服务端获取
       toast.add({ severity: 'success', summary: '成功', detail: response.data.message || '发送成功！', life: 3000 });
 
       // --- TODO: Optionally refresh the card list after successful post ---
@@ -134,6 +134,34 @@ const handleSendTopic = async () => {
     }
 };
 
+//刷新卡片
+function refresh(path: string, api: string, category: string) {
+    console.log(`刷新分类: ${category}, 路径: ${path}, API: ${api}`);
+    cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
+    isloadingstore.dataloading = true;
+    cardstore.category = category;//设置分类
+    //console.log("当前的分类是：",cardstore.category)
+    isloadingstore.dataend = false;
+    //第一次加载内容
+    axiosInstance.post(api, { skip: 0, category: category }).then((response) => {
+        const receivedCards = response.data.data;
+        if (receivedCards && Array.isArray(receivedCards)) {
+            cardstore.carddata.push(...receivedCards);
+            console.log(`分类 "${category}" 的初始卡片数据已加载:`, cardstore.carddata);
+            if (cardstore.carddata.length === 0) {
+                isloadingstore.dataend = true;
+            }
+        } else {
+            console.warn(`分类 "${category}" 返回的初始卡片数据无效或为空:`, receivedCards);
+            // Handle case where category might have no cards initially
+        }
+    }).catch(error => {
+        console.error(`从 ${api} (分类: ${category}) 刷新初始数据失败:`, error);
+        toast.add({ severity: "error", summary: "错误", detail: "加载初始数据失败", life: 3000 });
+    }).finally(() => {
+        // cardstore.initialLoading = false; // Reset loading state if used
+    });
+}
 //发送请求获得前5个卡片数据
 const submitregister = async () => {
   dataloading.value = true; // 开始加载
@@ -141,7 +169,7 @@ const submitregister = async () => {
     const currentItemCount = cardstore.carddata.length;
     console.log(`请求下一页，跳过: ${currentItemCount}`);
 
-    const response = await axiosInstance.post('/getcard', { skip: currentItemCount });
+    const response = await axiosInstance.post('/getcard', { skip: currentItemCount,category:cardstore.category });
     const receivedCards = response.data.data;
 
     if (receivedCards && Array.isArray(receivedCards)) {

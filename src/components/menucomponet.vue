@@ -27,6 +27,9 @@ const isloadingstore = isloading();
 function refresh(path: string, api: string, category: string) {
     console.log(`刷新分类: ${category}, 路径: ${path}, API: ${api}`);
     cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
+    isloadingstore.dataloading = true;
+    cardstore.category = category;//设置分类
+    //console.log("当前的分类是：",cardstore.category)
     router.push(path);
     isloadingstore.dataend = false;
     //第一次加载内容
@@ -35,6 +38,9 @@ function refresh(path: string, api: string, category: string) {
         if (receivedCards && Array.isArray(receivedCards)) {
             cardstore.carddata.push(...receivedCards);
             console.log(`分类 "${category}" 的初始卡片数据已加载:`, cardstore.carddata);
+            if (cardstore.carddata.length === 0) {
+                isloadingstore.dataend = true;
+            }
         } else {
             console.warn(`分类 "${category}" 返回的初始卡片数据无效或为空:`, receivedCards);
             // Handle case where category might have no cards initially
