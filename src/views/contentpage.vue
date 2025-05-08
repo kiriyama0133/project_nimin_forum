@@ -198,7 +198,8 @@ const onScrollToBottom = () => {
             :time ="String(route.query.time || '')"
             :index="0"
             :content="String(route.query.content || '')"
-            :thumbs="Number(route.query.thumbs)">
+            :thumbs="Number(route.query.thumbs)"
+            :number_primary="String(route.query.number)">
         </sendcard>
     </div>
   <div class="card flex justify-center">
@@ -234,6 +235,7 @@ const onScrollToBottom = () => {
             :time = "item.time"
             :content="item.content"
             :thumbs="item.thumbs"
+            :number_primary="item.number_primary"
         >
     </sendcard>
     </div>

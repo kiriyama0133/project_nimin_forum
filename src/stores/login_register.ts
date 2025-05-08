@@ -5,6 +5,7 @@ import type { UserInfo } from '../types/userInfo';
 export const useCounterStore = defineStore('user', () => {
   const userInfo = reactive<UserInfo>({
     username: '',
+    user_id: ''
   });
   const first_cookie_get = ref<boolean>(false);
   let loading = ref<boolean>(false);

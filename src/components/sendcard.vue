@@ -30,13 +30,14 @@
             <slot name="end">
               <div class="card flex">
                 <ToggleButton
-                :modelValue="checked"
+                v-model="checked"
                 off-icon="pi pi-thumbs-up"
                 on-icon="pi pi-thumbs-up-fill"
                 class="w-20"
                 aria-label="点赞操作" 
-                :off-label="props.thumbs.toString()"
-                :on-label="(Number(props.thumbs) + 1).toString()"/>
+                :off-label="likeCount.toString()"
+                :on-label="likeCount.toString()"
+                @change="handleThumbsToggle"/>
               </div>
               <Button :alt="props.index" @click="refresh" variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="回复" icon="pi pi-reply" />
             </slot>
@@ -51,8 +52,9 @@ import Button from 'primevue/button';
 import 'primeicons/primeicons.css';
 import ToggleButton from 'primevue/togglebutton';
 import { useDialogStore } from '../stores/dialog';
-import { onMounted, ref, watch, defineProps } from 'vue';
-import { computed } from 'vue';
+import { onMounted,ref, defineProps } from 'vue';
+import {toggleLike} from '../utils/like';
+import axiosInstance from '../utils/likestatus';
 const dialog = useDialogStore();
 const checked = ref(false);
 function refresh() {
@@ -68,20 +70,43 @@ const props = defineProps<{
   thumbs: number | string;
   time: string;
   number: number | string;
+  number_primary:string;
 }>();
+const likeCount = ref(Number(props.thumbs))
 
 
-/*const handleThumbToggle = async () => {
-  const newVal = !checked.value;
+const handleThumbsToggle=async()=>{
+    const isNowChecked = checked.value
+    console.log( isNowChecked)
+    //const action = !checked.value ? 'like' : 'unlike' // 这里是反的，因为 checked 已经更新了
   try {
-    const res = await toggleThumb(String(props.id), newVal);
-    thumbsCount.value = res.totalLikes;
-    checked.value = newVal;
-  } catch (e) {
-    console.error('点赞操作失败:', e);
-    // 不修改 checked，保持当前状态
+    await toggleLike({
+    reply_id: String(props.number_primary),
+    action: isNowChecked ? 'like' : 'unlike'
+    })
+    likeCount.value += isNowChecked ? 1 : -1
+    console.log(isNowChecked ? '点赞成功' : '取消点赞成功')
+    
+  } catch (error) {
+    console.error('点赞操作失败:', error)
+    // 回滚状态
+    checked.value = !checked.value
   }
-};*/
+}
+const checkLikeStatus = async () => {
+  try {
+    const response = await axiosInstance.get('/like-status', {
+      params: { reply_id: props.number_primary }
+    });
+    checked.value = response.data.liked; // 根据返回的状态设置点赞状态
+  } catch (error) {
+    console.error('获取点赞状态失败:', error);
+  }
+};
+
+onMounted(() => {
+  checkLikeStatus(); // 页面加载时检查当前点赞状态
+});
 </script>
   
   <style scoped>

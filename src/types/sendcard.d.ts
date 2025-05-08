@@ -12,7 +12,8 @@ export interface AddReplyCard { // Structure of a single reply card received fro
     content: string;
     time: string;
     reply?: string; // User ID being replied to, if any
-    thumbs?: number; // Optional, based on sendcard component props
+    thumbs?: number;
+    number_primary:string; // Optional, based on sendcard component props
     // Add any other fields that AddReplyCard from your backend has and sendcard component uses
 }
 export interface ReplyCardRequest {
