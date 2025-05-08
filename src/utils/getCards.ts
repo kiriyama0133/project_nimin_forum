@@ -1,7 +1,7 @@
 import axios from 'axios';
 const axiosInstance = 
 axios.create({
-    baseURL: 'http://localhost:8000/api/v1/cards', // 后端服务的基础 URL
+    baseURL: 'https://localhost:8000/api/v1/cards', // 后端服务的基础 URL
     timeout: 5000, // 请求超时时间（毫秒）
     headers: {
       'Content-Type': 'application/json', // 默认请求头
@@ -62,27 +62,52 @@ export interface CookieApiResponse {
 
 export const addCookie = async (): Promise<CookieApiResponse> => {
   try {
-    // The backend is expected to always return a JSON object with a 'message' field,
-    // even for logical errors like "cookies不足", with a 200 OK status.
-    const response = await axiosInstance.get<CookieApiResponse>('/addcookie');
+    // This function's target URL needs careful consideration based on where /addcookie is.
+    // If /addcookie is NOT relative to the getCards.ts baseURL (e.g. it's at the true root of the domain)
+    // this will need its own instance or an absolute URL.
+    // For now, assuming it might be relative to the new baseURL for consistency, or handled by a different util.
+    // If it should be https://localhost:8000/addcookie, and baseURL is https://localhost:8000/ :
+    const response = await axiosInstance.get<CookieApiResponse>('addcookie'); 
     return response.data;
   } catch (error: any) {
     console.error('Error calling /addcookie API:', error);
-
-    // This catch block handles network errors or unexpected server errors
-    // (e.g., 500, or 4xx if not handled by the backend to return a Message object).
     if (error.response && error.response.data && typeof error.response.data.message === 'string') {
-      // If the server did return an error response with a 'message' field (e.g. some specific error middleware)
       return { message: error.response.data.message };
     } else if (error.response && error.response.data && typeof error.response.data.detail === 'string') {
-      // FastAPI validation errors often use 'detail'
       return { message: error.response.data.detail };
     } else if (error.request) {
-      // The request was made but no response was received
       return { message: '无法连接到服务器，请检查您的网络连接并稍后再试。' };
     } else {
-      // Something else happened in setting up the request that triggered an Error
       return { message: '添加Cookie时发生未知错误，请稍后再试。' };
     }
+  }
+};
+
+// Assuming DefaultCard structure based on typical usage and backend model hints
+export interface DefaultCard {
+  id: string; 
+  content: string;
+  time: string;
+  number: number; 
+  category: string;
+}
+
+export interface NewCardRequest {
+  category: string;
+}
+
+export interface NewCardResponse {
+  data: DefaultCard | null;
+}
+
+export const fetchNewestCard = async (category: string): Promise<NewCardResponse> => {
+  const payload: NewCardRequest = { category };
+  try {
+    // These paths will be relative to the baseURL above
+    const response = await axiosInstance.post<NewCardResponse>('getnewcard', payload);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching newest card:', error);
+    return { data: null }; 
   }
 };

@@ -1,17 +1,13 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus';
 import { useCounterStore } from '../stores/login_register';
-import { UsersService, OpenAPI } from '../client';
+import { UsersService } from '../client';
 import { ref } from 'vue';
 import type { UserRegister } from '../client';
-
 const store = useCounterStore();
-OpenAPI.BASE = 'http://localhost:8000';
-
 function goToLogin() {
   store.homepage = 'login';
 }
-
 let RegisterData = ref<UserRegister>({
   email: '',
   password: '',

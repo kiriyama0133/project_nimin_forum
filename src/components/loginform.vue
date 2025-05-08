@@ -5,7 +5,6 @@ const store = useCounterStore()
 import { useRouter } from 'vue-router';
 import { LoginService, OpenAPI } from '../client';
 import { ref } from 'vue';
-OpenAPI.BASE = 'http://localhost:8000';
 const router = useRouter()
 let LoginData = ref({
   username: '',
