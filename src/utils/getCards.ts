@@ -55,7 +55,15 @@ axios.create({
   
   //导出封装的 Axios 实例
   export default axiosInstance;
-
+export async function getOneCard(number:number): Promise<any> {
+  try {
+    const response = await axiosInstance.get(`getonecard/${number}`);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching card:', error);
+    return null; // Return null in case of error
+  }
+}
 export interface CookieApiResponse {
   message: string;
 }

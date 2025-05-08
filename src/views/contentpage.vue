@@ -12,7 +12,9 @@ import { useRoute } from 'vue-router';
 import { AddReplyCardClient,ReplyCardRequest,AddReplyCardResponse } from '../types/sendcard';
 import { getCurrentTimeFormatted } from '../utils/getCurrentTimeFormate';
 import { useCounterStore } from '../stores/login_register';
-
+import { getOneCard } from '../utils/getCards';
+import type { carddata } from '../types/carddata';
+const starter =ref<carddata|null>(null)
 const dialog = useDialogStore();
 const sendcardstore = useCarddata()
 const route = useRoute();
@@ -167,9 +169,14 @@ onMounted(()=>{
   sendcardstore.contentdata = [];
   dataend.value = false;
   dataloading.value = false; // Ensure loading is false before initial fetch
-  fetchReplies(true); // Fetch initial replies for the current post
+  fetchReplies(true);// Fetch initial replies for the current post
 })
-
+onMounted(async()=>{
+  const defuatcardnumber =Number(route.query.number)
+  if(defuatcardnumber){
+    starter.value=await getOneCard(defuatcardnumber)
+  }
+})
 // 滚动事件处理函数
 const scrollContainer = ref<HTMLElement | null>(null); // 定义模板引用
 const handleScroll = () => {
@@ -192,13 +199,13 @@ const onScrollToBottom = () => {
   <div @scroll="handleScroll"
   ref="scrollContainer" class="subculture scroll-custom h-full overflow-y-auto relative">
   <div class="flex flex-col gap-1 p-2">
-        <sendcard
+        <sendcard v-if="starter"
             :number="Number(route.query.number) || 0"
-            :id="String(route.query.id || '')"
+            :id="String(starter?.id || '')"
             :time ="String(route.query.time || '')"
             :index="0"
-            :content="String(route.query.content || '')"
-            :thumbs="Number(route.query.thumbs)"
+            :content="String(starter?.content || '')"
+            :thumbs="Number(starter.thumbs)"
             :number_primary="String(route.query.number)">
         </sendcard>
     </div>

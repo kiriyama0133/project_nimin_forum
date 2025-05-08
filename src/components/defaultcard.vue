@@ -39,10 +39,7 @@ const gotoreply = ()=>{
     name: '内容页',
     query: {
       number: props.number,
-      id: props.id,
       time: props.time,
-      content: props.content,
-      thumbs: Number(props.thumbs)
     }
   });
 };
