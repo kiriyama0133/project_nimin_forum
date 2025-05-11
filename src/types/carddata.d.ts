@@ -4,4 +4,7 @@ export interface carddata{
     content:string,
     time:string
     thumbs:number
+    category?: string;
+    imageUrls?: string[];
+    number_primary?:string;
 }

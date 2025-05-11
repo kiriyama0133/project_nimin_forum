@@ -13,19 +13,29 @@
               </div>
             </slot>
           </h2>
-          <h3 v-if="props.reply" class="text-lg mb-4 bg-pink-100">
+          <h3 v-if="props.reply" class="text-lg mb-4 bg-pink-100 p-2 rounded">
             <slot name="reply">
-              <div class="flex gap-4">
-                <p>>>></p>
+              <div class="flex gap-2 items-center">
+                <p class="font-semibold">回复 >></p>
                 <p class="text-black">{{ props.reply }}</p>
               </div>
             </slot>
           </h3>
-          <p>
+          <p class="mb-3">
             <slot name="content">
               <p>{{ props.content }}</p>
             </slot>
           </p>
+          <div v-if="props.imageUrls && props.imageUrls.length > 0" class="mb-3 flex flex-wrap gap-3">
+            <img 
+                v-for="(relativePath, imgIndex) in props.imageUrls" 
+                :key="imgIndex" 
+                :src="`${IMAGE_BASE_URL}${relativePath}`" 
+                :alt="`Image ${imgIndex + 1}`" 
+                class="h-32 w-32 object-cover rounded border border-gray-300 cursor-pointer shadow-md hover:shadow-lg transition-shadow"
+                @click.stop="openImageModal(`${IMAGE_BASE_URL}${relativePath}`)" 
+            />
+          </div>
           <div class="flex justify-end items-center gap-2">
             <slot name="end">
               <div class="card flex">
@@ -45,18 +55,30 @@
         </div>
       </div>
     </div>
+
+    <Dialog v-model:visible="isImageModalVisible" modal header="图片预览" :style="{ width: '90vw', maxWidth: '1000px' }">
+        <img :src="currentModalImageUrl" alt="Full image preview" class="w-full h-auto max-h-[85vh] object-contain" />
+    </Dialog>
   </template>
   
   <script lang="ts" setup>
 import Button from 'primevue/button';
 import 'primeicons/primeicons.css';
 import ToggleButton from 'primevue/togglebutton';
+import Dialog from 'primevue/dialog';
 import { useDialogStore } from '../stores/dialog';
 import { onMounted,ref, defineProps } from 'vue';
 import {toggleLike} from '../utils/like';
 import axiosInstance from '../utils/likestatus';
+
+const IMAGE_BASE_URL = 'https://localhost/i/';
+
 const dialog = useDialogStore();
 const checked = ref(false);
+
+const isImageModalVisible = ref(false);
+const currentModalImageUrl = ref('');
+
 function refresh() {
   dialog.Dialogvisible = true;
   dialog.replyuser = props.id;
@@ -71,14 +93,18 @@ const props = defineProps<{
   time: string;
   number: number | string;
   number_primary:string;
+  imageUrls?: string[];
 }>();
 const likeCount = ref(Number(props.thumbs))
 
+const openImageModal = (imageUrl: string) => {
+    currentModalImageUrl.value = imageUrl;
+    isImageModalVisible.value = true;
+};
 
 const handleThumbsToggle=async()=>{
     const isNowChecked = checked.value
     console.log( isNowChecked)
-    //const action = !checked.value ? 'like' : 'unlike' // 这里是反的，因为 checked 已经更新了
   try {
     await toggleLike({
     reply_id: String(props.number_primary),
@@ -89,7 +115,6 @@ const handleThumbsToggle=async()=>{
     
   } catch (error) {
     console.error('点赞操作失败:', error)
-    // 回滚状态
     checked.value = !checked.value
   }
 }
@@ -98,14 +123,14 @@ const checkLikeStatus = async () => {
     const response = await axiosInstance.get('/like-status', {
       params: { reply_id: props.number_primary }
     });
-    checked.value = response.data.liked; // 根据返回的状态设置点赞状态
+    checked.value = response.data.liked;
   } catch (error) {
     console.error('获取点赞状态失败:', error);
   }
 };
 
 onMounted(() => {
-  checkLikeStatus(); // 页面加载时检查当前点赞状态
+  checkLikeStatus();
 });
 </script>
   

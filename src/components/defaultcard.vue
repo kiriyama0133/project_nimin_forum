@@ -1,39 +1,69 @@
 <template>
 <div class=" rounded-lg" style="box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.5);">
     <div class="defaultcard bg-pink-50 rounded-lg shadow-lg transition-all 
-        duration-500 transform hover:shadow-2xl hover:-translate-y-2 h-[10rem] line-clamp-5">
+        duration-500 transform hover:shadow-2xl hover:-translate-y-2 ">
         <div  @click="gotoreply" class="p-4">
             <h2 class="text-lg  text-gray-800 mb-4">
                 <slot name="title">
                     <div class="flex gap-4 justify-between">
                         <div>
-                            <p>No.{{ number }}</p>
-                            <p>{{ id }}</p>
+                            <p>No.{{ props.number }}</p>
+                            <p>{{ props.id }}</p>
                         </div>
-                            <p style="font-size: xx-small;">{{ time }}</p>
+                            <p style="font-size: xx-small;">{{ props.time }}</p>
                          </div>
                 </slot>
             </h2>
-            <p class="text-gray-600">
+            <p class="text-gray-600 line-clamp-3 min-h-[4.5rem]">
                <slot name="content">
-                <p>{{ content }}</p>
+                <p>{{ props.content }}</p>
                </slot>
             </p>
+            <div v-if="props.imageUrls && props.imageUrls.length > 0" class="mt-2 flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+                <img 
+                    v-for="(relativePath, index) in props.imageUrls" 
+                    :key="index" 
+                    :src="`${IMAGE_BASE_URL}${relativePath}`" 
+                    :alt="`Image ${index + 1}`" 
+                    class="h-20 w-20 object-cover rounded border border-gray-300 cursor-pointer"
+                    @click.stop="openImageModal(`${IMAGE_BASE_URL}${relativePath}`)" 
+                />
             </div>
-            <div class ="flex justify-end h-5 items-center">
-                <ToggleButton size="small" v-model="isfavorate" @click="favorate()" onIcon="pi pi-star-fill" offIcon="pi pi-star" onLabel="已收藏" offLabel="收藏"/>
+            </div>
+            <div class ="flex justify-end h-5 items-center pr-2 pb-1">
+                <ToggleButton size="small" v-model="isfavorate" @click.stop="favorate()" onIcon="pi pi-star-fill" offIcon="pi pi-star" onLabel="已收藏" offLabel="收藏"/>
             </div>
         </div>
     </div>
+
+    <Dialog v-model:visible="isImageModalVisible" modal header="图片预览" :style="{ width: '90vw', maxWidth: '800px' }">
+        <img :src="currentModalImageUrl" alt="Full image preview" class="w-full h-auto max-h-[80vh] object-contain" />
+    </Dialog>
 </template>
 <script lang="ts" setup>
-const props = defineProps(['number','id','content','time','thumbs'])
+const props = defineProps<{ 
+    number: string | number;
+    id: string;
+    content: string;
+    time: string;
+    thumbs?: string | number;
+    imageUrls?: string[]; 
+}>();
+
 import { useRouter } from 'vue-router';
 import  'primeicons/primeicons.css'
 import ToggleButton from 'primevue/togglebutton';
+import Dialog from 'primevue/dialog';
 import { ref } from 'vue'
+
+const IMAGE_BASE_URL = 'https://localhost/i/';
+
 const router = useRouter()
 const isfavorate = ref(false)
+
+const isImageModalVisible = ref(false);
+const currentModalImageUrl = ref('');
+
 const gotoreply = ()=>{
     router.push({
     name: '内容页',
@@ -44,26 +74,21 @@ const gotoreply = ()=>{
   });
 };
 
-/*function refresh(path:string,api:string) {
-    sendcardstore.contentdata.splice(0,sendcardstore.contentdata.length); //清空列表
-    router.push(path);
-    axiosInstance.get(api).then((response)=>{
-        sendcardstore.contentdata.push(response.data)
-    })
-    //这里之后写向后台请求点赞数据的业务代码。
-}*/
+const openImageModal = (imageUrl: string) => {
+    currentModalImageUrl.value = imageUrl;
+    isImageModalVisible.value = true;
+};
+
 function favorate() {
     const favorites = JSON.parse(localStorage.getItem('favoriteNumbers') || '[]')
 
     if (isfavorate.value) {
-        // 如果当前 number 不在收藏列表里，就添加
         if (!favorites.includes(props.number)) {
             favorites.push(props.number)
             localStorage.setItem('favoriteNumbers', JSON.stringify(favorites))
             console.log("已收藏，当前收藏列表:", favorites)
         }
     } else {
-        // 取消收藏 → 从数组里移除当前 number
         const updatedFavorites = favorites.filter((num: any) => num !== props.number)
         localStorage.setItem('favoriteNumbers', JSON.stringify(updatedFavorites))
         console.log("已取消收藏，当前收藏列表:", updatedFavorites)

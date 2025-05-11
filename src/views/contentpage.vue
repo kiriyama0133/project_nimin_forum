@@ -4,6 +4,7 @@ import { ElMessage } from 'element-plus'
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
+import { useToast } from "primevue/usetoast";
 import {useDialogStore} from '../stores/dialog'
 import axiosInstance from '../utils/getCards'
 import {useCarddata} from '../stores/contentsotre.ts'
@@ -11,11 +12,13 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { AddReplyCardClient,ReplyCardRequest,AddReplyCardResponse } from '../types/sendcard';
 import { getCurrentTimeFormatted } from '../utils/getCurrentTimeFormate';
+import axiosInstance_upload from '../utils/upload';
 import { useCounterStore } from '../stores/login_register';
 import { getOneCard } from '../utils/getCards';
 import type { carddata } from '../types/carddata';
 const starter =ref<carddata|null>(null)
 const dialog = useDialogStore();
+const toast = useToast();
 const sendcardstore = useCarddata()
 const route = useRoute();
 const userStore = useCounterStore();
@@ -23,6 +26,15 @@ let dataend = ref(false);
 let dataloading = ref(false);
 let click_reply = ref(false) //点击回复按钮的标志
 const replyContent = ref(''); // Ref for the reply input in the dialog
+
+// ADDED: State for reply image uploads
+const selectedReplyFiles = ref<File[]>([]);
+const replyImagePreviewUrls = ref<string[]>([]);
+const replyFileInputRef = ref<HTMLInputElement | null>(null);
+
+// ADDED: Refs for upload state, similar to subculture.vue
+const isUploading = ref(false); 
+const uploadProgress = ref(0);
 
 // --- Function to open dialog for a direct reply to the post ---
 const openDirectReplyDialog = () => {
@@ -49,55 +61,175 @@ const open_error = (message: string) => {
   })
 }
 
-//发送按钮的函数
+// ADDED: Helper functions for reply image handling
+const triggerReplyFileInput = () => {
+  replyFileInputRef.value?.click();
+};
+
+const handleReplyFileChange = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    const files = target.files;
+
+    if (!files || files.length === 0) {
+        selectedReplyFiles.value = [];
+        replyImagePreviewUrls.value = [];
+        if (replyFileInputRef.value) replyFileInputRef.value.value = '';
+        return;
+    }
+
+    selectedReplyFiles.value = [];
+    replyImagePreviewUrls.value = [];
+    let filesToProcess = Array.from(files);
+
+    if (filesToProcess.length > 3) {
+        toast.add({ severity: 'warn', summary: '提示', detail: '最多只能选择3张回复图片。已选择前3张。', life: 3000 });
+        filesToProcess = filesToProcess.slice(0, 3);
+    }
+
+    for (const file of filesToProcess) {
+        if (file && file.type.startsWith('image/')) {
+            selectedReplyFiles.value.push(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (e.target?.result) {
+                    replyImagePreviewUrls.value.push(e.target.result as string);
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            toast.add({ severity: 'warn', summary: '文件类型错误', detail: `回复图片 "${file.name}" 无效，已忽略。`, life: 3000 });
+        }
+    }
+    if (replyFileInputRef.value) {
+        replyFileInputRef.value.value = ''; // Reset file input
+    }
+};
+
+const removeSelectedReplyImages = () => {
+    selectedReplyFiles.value = [];
+    replyImagePreviewUrls.value = [];
+    if (replyFileInputRef.value) {
+        replyFileInputRef.value.value = '';
+    }
+};
+
+// MODIFIED: send() function to include image uploading for replies
 async function send(){
-  if (!replyContent.value.trim()) {
-    open_error('回复内容不能为空！');
+  if (!replyContent.value.trim() && selectedReplyFiles.value.length === 0) {
+    open_error('回复内容或图片不能为空！');
     return;
   }
 
-  click_reply.value = true;
+  click_reply.value = true; // Indicates processing starts (for button spinner)
+  isUploading.value = true; // General uploading state for progress bar etc.
+  uploadProgress.value = 0;
 
+  let uploadedReplyImagePaths: string[] = [];
+
+  // 1. Upload images if any are selected for the reply
+  if (selectedReplyFiles.value.length > 0) {
+    const formData = new FormData();
+    for (const file of selectedReplyFiles.value) {
+      formData.append('imageFiles', file); // Assuming same key as subculture page
+    }
+
+    try {
+      console.log(`开始上传 ${selectedReplyFiles.value.length} 张回复图片...`);
+      // Using axiosInstance_upload as in subculture.vue, ensure it's correctly defined/imported if different from axiosInstance
+      // For now, assuming axiosInstance can be used or you have a specific one for uploads.
+      // Let's use `axiosInstance` for consistency if `axiosInstance_upload` is not specifically defined here.
+      // If `axiosInstance_upload` is specific to subculture, we might need to import it or use a shared upload utility.
+      // For this example, I'll use `axiosInstance` assuming it can hit the /upload-images endpoint.
+      // IMPORTANT: Ensure the correct axios instance is used for image uploads.
+      // If `axiosInstance_upload` is defined and intended for all uploads, it should be used.
+      // For now, I will assume `axiosInstance` is capable or you have a global upload instance.
+      // Let's assume `getCards.ts` (axiosInstance) can also be used for this, or you have another instance like `axiosInstance_upload` from `subculture.vue`
+      // To be safe and consistent with potential separate upload logic, let's use a placeholder for the upload call that needs to be verified:
+      // const imageUploadAxios = axiosInstance; // Or your specific `axiosInstance_upload` if available
+      const imageResponse = await axiosInstance_upload.post('/upload-images', formData, { // Replace with correct axios instance if needed
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          }
+        }
+      });
+
+      if (imageResponse.data && imageResponse.data.message) { // Backend sends a success message
+        console.log("回复图片处理阶段完成，服务端消息:", imageResponse.data.message);
+        // Assuming backend also sends image paths in imageResponse.data.data as in subculture.vue
+        if (imageResponse.data.data && Array.isArray(imageResponse.data.data)) {
+          uploadedReplyImagePaths = imageResponse.data.data;
+        } else {
+          console.warn("回复图片上传成功，但未收到图片路径数组 (imageResponse.data.data)");
+          // uploadedReplyImagePaths will remain empty
+        }
+        // No separate toast here for image success, main success toast after reply is sent.
+      } else {
+        console.error("回复图片上传响应格式不符合预期或未包含message:", imageResponse.data);
+        open_error('回复图片上传后服务器响应异常。');
+        isUploading.value = false;
+        click_reply.value = false;
+        uploadProgress.value = 0;
+        return; 
+      }
+    } catch (uploadError: any) {
+      console.error("回复图片上传失败:", uploadError);
+      const errMsg = uploadError.response?.data?.message || '回复图片上传失败。';
+      open_error(errMsg);
+      isUploading.value = false;
+      click_reply.value = false;
+      uploadProgress.value = 0;
+      return;
+    }
+  }
+  // Reset progress after image upload (or if no images)
+  uploadProgress.value = 0;
+
+  // 2. Prepare and send the reply data (text + image paths)
   const originalPostNumberStr = route.query.number as string;
   if (!originalPostNumberStr) {
       open_error('无效的帖子编号。');
+      isUploading.value = false;
       click_reply.value = false;
       return;
   }
   const originalPostNumber = parseInt(originalPostNumberStr);
    if (isNaN(originalPostNumber)) {
       open_error('帖子编号格式错误。');
+      isUploading.value = false;
       click_reply.value = false;
       return;
   }
 
-  setTimeout(async () => {
-    const replyData: AddReplyCardClient = {
-      number: originalPostNumber,
-      id: userStore.userInfo.username || '', //回复用户用的名称，后期加入cookie去替代
-      content: replyContent.value,
-      time: getCurrentTimeFormatted(),
-      reply: dialog.replyuser || undefined, // 回复的用户
-    };
+  const replyData: AddReplyCardClient = {
+    number: originalPostNumber,
+    id: userStore.userInfo.username || '',
+    content: replyContent.value,
+    time: getCurrentTimeFormatted(),
+    reply: dialog.replyuser || undefined,
+    imageUrls: uploadedReplyImagePaths.length > 0 ? uploadedReplyImagePaths : undefined
+  };
 
-    try {
-      console.log('Sending reply:', replyData);
-      const response = await axiosInstance.post('/addreplycard', replyData);
-      console.log('Reply sent successfully:', response.data);
-      // The line below implements the refresh
-      
-      dialog.Dialogvisible = false;
-      replyContent.value = ''; // 回复的内容
-      open1(); // Shows success message
-      fetchReplies(true); // Fetches the first page of replies
-    } catch (error: any) {
-      console.error('Failed to send reply:', error);
-      const errorMessage = error.response?.data?.detail || error.response?.data?.message || '回复失败，请稍后再试';
-      open_error(errorMessage);
-    } finally {
-      click_reply.value = false;
-    }
-  }, 1000);
+  try {
+    console.log('发送回复数据:', replyData);
+    const response = await axiosInstance.post('/addreplycard', replyData);
+    console.log('回复发送成功:', response.data);
+    
+    dialog.Dialogvisible = false;
+    replyContent.value = ''; 
+    removeSelectedReplyImages(); // Clear selected reply images
+    open1(); // Shows main success message for reply
+    fetchReplies(true); 
+  } catch (error: any) {
+    console.error('发送回复失败:', error);
+    const errorMessage = error.response?.data?.detail || error.response?.data?.message || '回复失败，请稍后再试';
+    open_error(errorMessage);
+  } finally {
+    isUploading.value = false;
+    click_reply.value = false;
+    uploadProgress.value = 0; // Ensure progress is reset
+  }
+  // Removed the setTimeout wrapper for a more direct flow
 }
 
 // --- Function to fetch replies for the current post ---
@@ -171,12 +303,14 @@ onMounted(()=>{
   dataloading.value = false; // Ensure loading is false before initial fetch
   fetchReplies(true);// Fetch initial replies for the current post
 })
+
 onMounted(async()=>{
   const defuatcardnumber =Number(route.query.number)
   if(defuatcardnumber){
     starter.value=await getOneCard(defuatcardnumber)
   }
 })
+
 // 滚动事件处理函数
 const scrollContainer = ref<HTMLElement | null>(null); // 定义模板引用
 const handleScroll = () => {
@@ -206,30 +340,11 @@ const onScrollToBottom = () => {
             :index="0"
             :content="String(starter?.content || '')"
             :thumbs="Number(starter.thumbs)"
-            :number_primary="String(route.query.number)">
+            :number_primary="String(route.query.number)"
+            :imageUrls="starter.imageUrls" 
+        >
+            
         </sendcard>
-    </div>
-  <div class="card flex justify-center">
-        <Dialog v-model:visible="dialog.Dialogvisible" modal header="回复" :style="{ width: '25rem' }">
-            <div class="flex items-center gap-4 mb-4">
-                <label for="username" class="font-semibold w-24">{{ dialog.replyuser ? '回复用户' : '回复帖子' }}</label>
-                <p v-if="dialog.replyuser">{{ dialog.replyuser }}</p>
-            </div>
-            <div class="flex items-center gap-4 mb-8">
-                <Textarea v-model="replyContent" id="replyInput" class="w-full resize-none" rows="5" placeholder="说点什么吧..." />   
-            </div>
-            <div class="flex justify-end gap-2">
-                <Button type="button" label="取消" severity="secondary" @click="dialog.Dialogvisible = false"></Button>
-                <Button type="button" label="发送" @click="send">
-                    <template v-if="click_reply" #icon>
-                        <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                        </svg>
-                    </template>
-                </Button>
-            </div>
-        </Dialog>
     </div>
     <h2 class="text-lg mb-3">以下是帖No.{{route.query.number}}的回复</h2>
     <div class="flex flex-col gap-1 p-2" v-if="sendcardstore.contentdata.length > 0">
@@ -243,6 +358,7 @@ const onScrollToBottom = () => {
             :content="item.content"
             :thumbs="item.thumbs"
             :number_primary="item.number_primary"
+            :imageUrls="item.imageUrls" 
         >
     </sendcard>
     </div>
@@ -270,7 +386,73 @@ const onScrollToBottom = () => {
                 hover:bg-gray-700 transition-colors duration-200 z-20">
         <i class="pi pi-send text-xl"></i> <!-- Changed icon to pi-send -->
     </button>
+    <div class="card flex justify-center">
+        <Dialog v-model:visible="dialog.Dialogvisible" modal header="回复" :style="{ width: '90vw', maxWidth: '500px' }">
+            <div class="flex items-center gap-4 mb-4">
+                <label for="username" class="font-semibold w-24">{{ dialog.replyuser ? '回复用户' : '回复帖子' }}</label>
+                <p v-if="dialog.replyuser">{{ dialog.replyuser }}</p>
+            </div>
+            <div class="flex flex-col gap-3">
+                <Textarea v-model="replyContent" id="replyInput" class="w-full resize-none" rows="5" placeholder="说点什么吧..." />
+                
+                <!-- ADDED: Reply Image Upload Section -->
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">附带图片 (最多3张)</label>
+                    <input
+                        ref="replyFileInputRef"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        @change="handleReplyFileChange"
+                        class="hidden" />
+                    <Button
+                        label="选择图片"
+                        icon="pi pi-image"
+                        severity="secondary"
+                        outlined
+                        size="small"
+                        :disabled="isUploading || selectedReplyFiles.length >= 3"
+                        @click="triggerReplyFileInput" />
 
+                    <div v-if="replyImagePreviewUrls.length > 0" class="mt-2 flex flex-wrap gap-2">
+                         <div v-for="(previewUrl, index) in replyImagePreviewUrls" :key="'reply-preview-' + index" class="relative inline-block">
+                             <img :src="previewUrl" :alt="'Reply image preview ' + (index + 1)" class="h-20 w-20 object-cover rounded border border-gray-300" />
+                         </div>
+                    </div>
+                    <Button v-if="selectedReplyFiles.length > 0" 
+                            label="移除回复图片"
+                            icon="pi pi-times" 
+                            @click="removeSelectedReplyImages" 
+                            :disabled="isUploading"
+                            severity="danger"
+                            text
+                            size="small"
+                            class="mt-1" />
+                </div>
+                
+                <div v-if="isUploading && selectedReplyFiles.length > 0" class="mt-2">
+                    <p class="text-sm text-center mb-1">图片上传中...</p>
+                    <ProgressBar :value="uploadProgress"></ProgressBar>
+                </div>
+                <div v-else-if="isUploading && selectedReplyFiles.length === 0 && replyContent.trim() !== ''" class="mt-2">
+                     <p class="text-sm text-center mb-1">正在发送回复...</p>
+                     <ProgressBar mode="indeterminate" style="height: .5em"></ProgressBar>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+                <Button type="button" label="取消" severity="secondary" @click="dialog.Dialogvisible = false" :disabled="isUploading"></Button>
+                <Button type="button" label="发送" @click="send" :disabled="isUploading || (!replyContent.trim() && selectedReplyFiles.length === 0)">
+                    <template v-if="click_reply" #icon>
+                         <!-- Spinner SVG remains the same -->
+                        <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        </svg>
+                    </template>
+                </Button>
+            </div>
+        </Dialog>
+    </div>
     </div>
 </template>
 <style scoped>

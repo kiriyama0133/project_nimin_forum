@@ -55,10 +55,12 @@ axios.create({
   
   //导出封装的 Axios 实例
   export default axiosInstance;
+
 export async function getOneCard(number:number): Promise<any> {
   try {
     const response = await axiosInstance.get(`getonecard/${number}`);
-    return response.data;
+    console.log("获取到的帖子",response.data.data[0]);
+    return response.data.data[0];
   } catch (error: any) {
     console.error('Error fetching card:', error);
     return null; // Return null in case of error
@@ -70,11 +72,6 @@ export interface CookieApiResponse {
 
 export const addCookie = async (): Promise<CookieApiResponse> => {
   try {
-    // This function's target URL needs careful consideration based on where /addcookie is.
-    // If /addcookie is NOT relative to the getCards.ts baseURL (e.g. it's at the true root of the domain)
-    // this will need its own instance or an absolute URL.
-    // For now, assuming it might be relative to the new baseURL for consistency, or handled by a different util.
-    // If it should be https://localhost:8000/addcookie, and baseURL is https://localhost:8000/ :
     const response = await axiosInstance.get<CookieApiResponse>('addcookie'); 
     return response.data;
   } catch (error: any) {

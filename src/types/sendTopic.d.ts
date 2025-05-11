@@ -3,5 +3,6 @@ export interface SendTopic {
     id: string;
     time: string;
     category: string;
+    imageUrls?: string[];
   }
   
