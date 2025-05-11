@@ -131,7 +131,7 @@ const props = withDefaults(defineProps<Props>(), {
       <div class="second-circle" />
     </div>
     <div class="mask" />
-    <div class="center-circle bg-[url('src/assets/bg/200h.gif')] bg-cover" />
+    <div class="center-circle bg-[url('@/assets/bg/200h.gif')] bg-cover" />
   </div>
 </template>
 

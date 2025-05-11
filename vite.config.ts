@@ -1,38 +1,44 @@
-import { defineConfig } from 'vite'
-import path from 'node:path'
-import electron from 'vite-plugin-electron/simple'
-import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
-// https://vitejs.dev/config/
+import { defineConfig } from 'vite';
+import path from 'node:path';
+import electron from 'vite-plugin-electron/simple';
+import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
+
 export default defineConfig({
-  server:{
-    port:5174,
+  server: {
+    port: 5174, // 开发服务器端口
   },
+  base: '/', // 设置为你的子路径
   plugins: [
-    vue(),tailwindcss(),
+    vue(),
+    tailwindcss(),
     electron({
       main: {
-        // Shortcut of `build.lib.entry`.
-        entry: 'electron/main.ts',
+        entry: 'electron/main.ts', // 主进程入口文件
       },
-      
       preload: {
-        // Shortcut of `build.rollupOptions.input`.
-        // Preload scripts may contain Web assets, so use the `build.rollupOptions.input` instead `build.lib.entry`.
-        input: path.join(__dirname, 'electron/preload.ts'),
+        input: path.join(__dirname, 'electron/preload.ts'), // 预加载脚本入口文件
       },
-      // Ployfill the Electron and Node.js API for Renderer process.
-      // If you want use Node.js in Renderer process, the `nodeIntegration` needs to be enabled in the Main process.
-      // See 👉 https://github.com/electron-vite/vite-plugin-electron-renderer
-      renderer: process.env.NODE_ENV === 'test'
-        // https://github.com/electron-vite/vite-plugin-electron-renderer/issues/78#issuecomment-2053600808
-        ? undefined
-        : {},
+      renderer: process.env.NODE_ENV === 'test' ? undefined : {},
     }),
   ],
-  resolve:{
-    alias:{
-      '@':path.resolve(__dirname,'src')
-    }
-  }
-})
+  define: {
+    'import.meta.env.BASE_URL': JSON.stringify('/'), // 注入默认值
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'), // 路径别名
+    },
+  },
+  build: {
+    outDir: 'dist', // 打包输出目录
+    assetsDir: 'assets', // 静态资源输出目录
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name]-[hash][extname]', // 静态资源文件命名规则
+        chunkFileNames: 'assets/[name]-[hash].js', // 代码分块文件命名规则
+        entryFileNames: 'assets/[name]-[hash].js', // 入口文件命名规则
+      },
+    },
+  },
+});

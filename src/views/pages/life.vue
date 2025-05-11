@@ -138,7 +138,8 @@ const handleSendTopic = async () => {
 function refresh(path: string, api: string, category: string) {
     console.log(`刷新分类: ${category}, 路径: ${path}, API: ${api}`);
     cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
-    isloadingstore.dataloading = true;
+    isloadingstore.dataloading = true; // This can remain if used for other global state
+    dataloading.value = true; // Controls the spinner
     cardstore.category = category;//设置分类
     //console.log("当前的分类是：",cardstore.category)
     isloadingstore.dataend = false;
@@ -148,7 +149,8 @@ function refresh(path: string, api: string, category: string) {
         if (receivedCards && Array.isArray(receivedCards)) {
             cardstore.carddata.push(...receivedCards);
             console.log(`分类 "${category}" 的初始卡片数据已加载:`, cardstore.carddata);
-            if (cardstore.carddata.length === 0) {
+            if (receivedCards.length < 5) { 
+                console.log("分类",category,"的卡片数据不足5条，已设置为已结束。")
                 isloadingstore.dataend = true;
             }
         } else {
@@ -159,6 +161,7 @@ function refresh(path: string, api: string, category: string) {
         console.error(`从 ${api} (分类: ${category}) 刷新初始数据失败:`, error);
         toast.add({ severity: "error", summary: "错误", detail: "加载初始数据失败", life: 3000 });
     }).finally(() => {
+        dataloading.value = false; // Hide spinner
         // cardstore.initialLoading = false; // Reset loading state if used
     });
 }

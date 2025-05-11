@@ -101,7 +101,7 @@ watch(()=>store.homepage, (newValue, _) => {
     <loading v-if="store.loading"/>
     <div class="cursor-window">
         <div class="bg-white opacity-40 w-full overflow-hidden">
-            <div class="bg-[url('src/assets/bg/marshmary.jpg')] bg-cover w-screen h-screen overflow-hidden">
+            <div class="bg-[url('@/assets/bg/marshmary.jpg')] bg-cover w-screen h-screen overflow-hidden">
                 <div class="grid grid-cols-16">
                     <div v-if="screenWidth>425" class="route-div col-span-8 overflow-hidden flex justify-center items-center ">
                         <routecard id="orbit" class="orbit rotate-x-50 rotate-z-45 transition-normal duration-300 hover:rotate-x-0 hover:rotate-z-0"></routecard>
