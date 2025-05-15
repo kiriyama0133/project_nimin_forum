@@ -1,7 +1,7 @@
 import axios from 'axios';
 const axiosInstance = 
 axios.create({
-    baseURL: 'https://localhost/api/v1/upload', // 后端服务的基础 URL
+    baseURL: 'http://localhost:10009/api/v2/', // 后端服务的基础 URL
     timeout: 5000, // 请求超时时间（毫秒）
     headers: {
       'Content-Type': 'multipart/form-data', // 默认请求头

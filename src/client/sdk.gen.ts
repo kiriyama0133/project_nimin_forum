@@ -51,6 +51,8 @@ import type {
   UtilsHealthCheckResponse,
 } from "./types.gen"
 
+// 设置后端服务的基础 URL
+OpenAPI.BASE = 'http://localhost:10009';
 /**
  * 与 "items" 相关的 API 端点服务
  */

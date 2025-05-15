@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   server: {
-    port: 5174, // 开发服务器端口
+    port: 15175, // 开发服务器端口
   },
   base: '/', // 设置为你的子路径
   plugins: [
