@@ -205,6 +205,36 @@ const handleSendTopic = async () => {
             uploadProgress.value = 0;
             return; 
         }
+    } else { // <-- This is the new else block
+        // Logic to send topic when no images are selected
+        isUploading.value = true; // Indicate loading
+        const currentTime = getCurrentTimeFormatted();
+        const cardData: SendTopic = {
+            id: userStore.userInfo.username || '',
+            content: topicText.value,
+            time: currentTime,
+            category: cardstore.category,
+            imageUrls: [] // No images
+        };
+
+        console.log("准备发送无图片的话题:", cardData);
+
+        try {
+            const response = await axiosInstance.post('/addcard', cardData);
+            console.log("发送成功:", response.data);
+            refresh('/subculture', '/getcard', cardstore.category);
+            toast.add({ severity: 'success', summary: '成功', detail: response.data.message || '发送成功！', life: 3000 });
+            topicText.value = '';
+            // removeSelectedImage(); // No images to remove
+            isDialogVisible.value = false;
+        } catch (error: any) {
+            console.error("发送失败:", error);
+            const errorMessage = error.response?.data?.detail || error.response?.data?.message || '发送失败，请稍后重试';
+            toast.add({ severity: 'error', summary: '错误', detail: errorMessage, life: 4000 });
+        } finally {
+            isUploading.value = false;
+            uploadProgress.value = 0;
+        }
     }
 };
 

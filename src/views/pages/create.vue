@@ -2,6 +2,7 @@
 import subcltureheader from '../../components/subcltureheader.vue';
 import defaultcard from '../../components/defaultcard.vue';
 import axiosInstance from '../../utils/getCards'
+import axiosInstance_upload from '../../utils/upload'
 import {useCarddata} from '../../stores/carddata'
 import { ref } from 'vue';
 import { isloading } from '../../stores/isloading';
@@ -26,9 +27,9 @@ const userStore = useCounterStore();
 // --- State for New Topic Dialog ---
 const isDialogVisible = ref(false);
 const topicText = ref('');
-const selectedFile = ref<File | null>(null);
+const selectedFiles = ref<File[]>([]);
 const fileInputRef = ref<HTMLInputElement | null>(null); // Ref for file input element
-const imagePreviewUrl = ref<string | null>(null);
+const imagePreviewUrls = ref<string[]>([]);
 const isUploading = ref(false);
 const uploadProgress = ref(0);
 
@@ -44,35 +45,56 @@ const triggerFileInput = () => {
     fileInputRef.value?.click();
 };
 
-// --- Function to handle file selection and create preview ---
+// --- 提交图片资源的函数 ---
 const handleFileChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
+    const files = target.files;
 
-    if (file && file.type.startsWith('image/')) {
-        selectedFile.value = file;
-        console.log("选择的文件:", selectedFile.value.name);
+    if (!files || files.length === 0) {
+        removeSelectedImage(); // Clear if no files selected
+        return;
+    }
 
-        // Create image preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            imagePreviewUrl.value = e.target?.result as string;
-        };
-        reader.onerror = (e) => {
-            console.error("FileReader 错误:", e);
-            imagePreviewUrl.value = null; // Clear preview on error
+    // Clear previous selections
+    selectedFiles.value = [];
+    imagePreviewUrls.value = [];
+
+    let filesToProcess = Array.from(files); // Convert FileList to Array
+
+    if (filesToProcess.length > 3) {
+        toast.add({ severity: 'warn', summary: '提示', detail: '最多只能选择3张图片。已选择前3张。', life: 3000 });
+        filesToProcess = filesToProcess.slice(0, 3); // Take only the first 3
+    }
+
+    for (const file of filesToProcess) {
+        if (file && file.type.startsWith('image/')) {
+            selectedFiles.value.push(file);
+            // Create image preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (e.target?.result) {
+                    imagePreviewUrls.value.push(e.target.result as string);
+                }
+            };
+            reader.onerror = (e) => {
+                console.error("FileReader 错误:", e);
+                // Optionally remove the corresponding file from selectedFiles if preview fails for one
+            }
+            reader.readAsDataURL(file);
+        } else {
+            toast.add({ severity: 'warn', summary: '文件类型错误', detail: `文件 "${file.name}" 不是有效的图片格式，已忽略。`, life: 3000 });
         }
-        reader.readAsDataURL(file);
-    } else {
-        console.log("未选择文件或文件不是图片。");
-        removeSelectedImage(); // Clear if selection is invalid or cancelled
+    }
+    // Reset file input value to allow re-selecting the same file(s) if needed after removal
+    if (fileInputRef.value) {
+        fileInputRef.value.value = '';
     }
 };
 
 // --- Function to remove selected image ---
 const removeSelectedImage = () => {
-    selectedFile.value = null;
-    imagePreviewUrl.value = null;
+    selectedFiles.value = [];
+    imagePreviewUrls.value = [];
     if (fileInputRef.value) {
         fileInputRef.value.value = ''; // Clear the file input
     }
@@ -89,48 +111,130 @@ const getCurrentTimeFormatted = (): string => {
     return `${year}-${month}-${day}-${hours}:${minutes}`;
 };
 
-// --- Function to handle sending the topic ---
+
 const handleSendTopic = async () => {
-    if (!topicText.value.trim()) { // Image part removed for now
-        toast.add({ severity: 'warn', summary: '提示', detail: '请输入内容！', life: 3000 });
+
+    if (!topicText.value.trim() && selectedFiles.value.length === 0) {
+        toast.add({ severity: 'warn', summary: '提示', detail: '请输入内容或选择至少一张图片！', life: 3000 });
         return;
     }
-    const currentTime = getCurrentTimeFormatted();
-    const cardData: SendTopic = {
-        id: userStore.userInfo.username || '',
-        content: topicText.value,
-        time: currentTime,
-        category: cardstore.category
-    };
+    // --------------------上传图片部分-------------------------
+    if (selectedFiles.value.length > 0) { // 选中的上传的图片
+        isUploading.value = true;
+        uploadProgress.value = 0;
 
-    console.log("准备发送话题:", cardData);
+        const formData = new FormData();
+        // 创建一个提交的表
+        for (const file of selectedFiles.value) {
+            // 遍历提交的文件
+            formData.append('imageFiles', file);
+        }
+        try {
+            console.log(`开始上传 ${selectedFiles.value.length} 张图片...`);
+            // 下面是对应的接口的实现
+            const imageResponse = await axiosInstance_upload.post('/upload-images', formData, {
+                onUploadProgress: (progressEvent) => {
+                    // 计算百分比
+                    if (progressEvent.total) {
+                        uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    }
+                }
+            });
 
-    isUploading.value = true; // Use isUploading as a general loading indicator here
-    uploadProgress.value = 0; // Reset progress (though not used for text-only)
+            // 后端返回Message = "上传成功"
+            if (imageResponse.data && imageResponse.data.message) {
+                // 上传完成的代码
+                console.log("所有图片处理阶段完成，服务端消息:", imageResponse.data.message);
+                console.log(imageResponse.data.data)
+                toast.add({ severity: 'success', summary: '图片处理成功', detail: imageResponse.data.message, life: 3000 });
+            } else {
+                 // 错误处理
+                 console.error("图片上传响应格式不符合预期或未包含message:", imageResponse.data);
+                 toast.add({ severity: 'error', summary: '上传响应错误', detail: '图片上传后服务器响应异常。话题未发送。', life: 4000 });
+                 isUploading.value = false;
+                 uploadProgress.value = 0;
+                 return; // Stop if batch upload response is not right
+            }
+            console.log()
+            uploadProgress.value = 0;
 
-    try {
-      const response = await axiosInstance.post('/addcard', cardData); // Send data
-      console.log("发送成功:", response.data);
-      refresh('/subculture', '/getcard', cardstore.category);
-      //发送成功后，从服务端获取
-      toast.add({ severity: 'success', summary: '成功', detail: response.data.message || '发送成功！', life: 3000 });
+            const currentTime = getCurrentTimeFormatted();
 
-      // --- TODO: Optionally refresh the card list after successful post ---
-      // E.g., call a function to reload the first page or insert the new card optimistically
-      // loadInitialData(); // Reloads everything, might not be ideal
+            // 发送话题卡片的部分
+            const cardData: SendTopic = {
+                id: userStore.userInfo.username || '',
+                content: topicText.value,
+                time: currentTime,
+                category: cardstore.category,
+                imageUrls: imageResponse?.data?.data || []
+            };
 
-      // Reset form and close dialog on success
-      topicText.value = '';
-      // removeSelectedImage(); // Keep if you re-add image logic
-      isDialogVisible.value = false;
+            console.log("准备发送话题:", cardData);
 
-    } catch (error: any) {
-      console.error("发送失败:", error);
-      const errorMessage = error.response?.data?.detail || error.response?.data?.message || '发送失败，请稍后重试';
-      toast.add({ severity: 'error', summary: '错误', detail: errorMessage, life: 4000 });
-    } finally {
-      isUploading.value = false; // Finish loading indication
-      uploadProgress.value = 0;
+            isUploading.value = true; 
+            uploadProgress.value = 0; 
+
+            try {
+                const response = await axiosInstance.post('/addcard', cardData);
+                console.log("发送成功:", response.data);
+                refresh('/subculture', '/getcard', cardstore.category);
+                toast.add({ severity: 'success', summary: '成功', detail: response.data.message || '发送成功！', life: 3000 });
+                topicText.value = '';
+                removeSelectedImage(); // MODIFIED: Clear multiple files
+                isDialogVisible.value = false;
+
+            } 
+            catch (error: any) 
+            {
+                console.error("发送失败:", error);
+                const errorMessage = error.response?.data?.detail || error.response?.data?.message || '发送失败，请稍后重试';
+                toast.add({ severity: 'error', summary: '错误', detail: errorMessage, life: 4000 });
+            } 
+            finally 
+            {
+                isUploading.value = false; // Finish loading indication
+                uploadProgress.value = 0;
+            }
+
+        } 
+        catch (uploadError: any) {
+            console.error("图片批量上传失败:", uploadError);
+            const uploadErrorMessage = uploadError.response?.data?.message || `图片上传失败 (${selectedFiles.value.length}张)，话题未发送。`;
+            toast.add({ severity: 'error', summary: '图片上传错误', detail: uploadErrorMessage, life: 4000 });
+            isUploading.value = false;
+            uploadProgress.value = 0;
+            return; 
+        }
+    } else { // <-- This is the new else block
+        // Logic to send topic when no images are selected
+        isUploading.value = true; // Indicate loading
+        const currentTime = getCurrentTimeFormatted();
+        const cardData: SendTopic = {
+            id: userStore.userInfo.username || '',
+            content: topicText.value,
+            time: currentTime,
+            category: cardstore.category,
+            imageUrls: [] // No images
+        };
+
+        console.log("准备发送无图片的话题:", cardData);
+
+        try {
+            const response = await axiosInstance.post('/addcard', cardData);
+            console.log("发送成功:", response.data);
+            refresh('/subculture', '/getcard', cardstore.category);
+            toast.add({ severity: 'success', summary: '成功', detail: response.data.message || '发送成功！', life: 3000 });
+            topicText.value = '';
+            // removeSelectedImage(); // No images to remove
+            isDialogVisible.value = false;
+        } catch (error: any) {
+            console.error("发送失败:", error);
+            const errorMessage = error.response?.data?.detail || error.response?.data?.message || '发送失败，请稍后重试';
+            toast.add({ severity: 'error', summary: '错误', detail: errorMessage, life: 4000 });
+        } finally {
+            isUploading.value = false;
+            uploadProgress.value = 0;
+        }
     }
 };
 
@@ -138,7 +242,8 @@ const handleSendTopic = async () => {
 function refresh(path: string, api: string, category: string) {
     console.log(`刷新分类: ${category}, 路径: ${path}, API: ${api}`);
     cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
-    isloadingstore.dataloading = true;
+    isloadingstore.dataloading = true; // This can remain if used for other global state
+    dataloading.value = true; // Controls the spinner
     cardstore.category = category;//设置分类
     //console.log("当前的分类是：",cardstore.category)
     isloadingstore.dataend = false;
@@ -160,6 +265,7 @@ function refresh(path: string, api: string, category: string) {
         console.error(`从 ${api} (分类: ${category}) 刷新初始数据失败:`, error);
         toast.add({ severity: "error", summary: "错误", detail: "加载初始数据失败", life: 3000 });
     }).finally(() => {
+        dataloading.value = false; // Hide spinner
         // cardstore.initialLoading = false; // Reset loading state if used
     });
 }
@@ -252,6 +358,7 @@ const onScrollToBottom = () => {
                 :id="item.id"
                 :content="item.content"
                 :thumbs="item.thumbs"
+                :imageUrls="item.imageUrls"
             >
             </defaultcard>
         </div>
@@ -288,12 +395,13 @@ const onScrollToBottom = () => {
                 </FloatLabel>
 
                 <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-700">上传图片 (可选)</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-700">上传图片 (最多3张)</label>
                     <input
                         ref="fileInputRef"
                         type="file"
                         id="topic-image-hidden"
                         accept="image/*"
+                        multiple
                         @change="handleFileChange"
                         class="hidden" />
                     <Button
@@ -301,16 +409,24 @@ const onScrollToBottom = () => {
                         icon="pi pi-image"
                         severity="secondary"
                         outlined
-                        :disabled="isUploading"
+                        :disabled="isUploading || selectedFiles.length >= 3"
                         @click="triggerFileInput" />
 
-                    <div v-if="imagePreviewUrl" class="mt-3 relative inline-block">
-                         <img :src="imagePreviewUrl" alt="Image preview" class="max-w-full h-auto max-h-40 rounded border border-gray-300" />
-                         <button @click="removeSelectedImage" :disabled="isUploading" class="absolute top-0 right-0 -mt-2 -mr-2 bg-red-500 text-white rounded-full p-1 leading-none hover:bg-red-600 focus:outline-none" title="移除图片">
-                             <i class="pi pi-times text-xs"></i>
-                         </button>
+                    <div v-if="imagePreviewUrls.length > 0" class="mt-3 flex flex-wrap gap-2">
+                         <div v-for="(previewUrl, index) in imagePreviewUrls" :key="index" class="relative inline-block">
+                             <img :src="previewUrl" :alt="'Image preview ' + (index + 1)" class="h-24 w-24 object-cover rounded border border-gray-300" />
+                         </div>
                     </div>
-                     <p v-if="selectedFile && !imagePreviewUrl" class="mt-1 text-sm text-gray-500">正在加载预览...</p>
+                    <Button v-if="selectedFiles.length > 0" 
+                            label="移除所有图片" 
+                            icon="pi pi-times" 
+                            @click="removeSelectedImage" 
+                            :disabled="isUploading"
+                            severity="danger"
+                            text
+                            size="small"
+                            class="mt-2" />
+                     <p v-if="selectedFiles.length > 0 && imagePreviewUrls.length < selectedFiles.length" class="mt-1 text-sm text-gray-500">正在加载预览...</p>
                 </div>
 
                 <div v-if="isUploading" class="mt-2">
@@ -321,7 +437,7 @@ const onScrollToBottom = () => {
 
              <template #footer>
                 <Button label="取消" icon="pi pi-times" @click="isDialogVisible = false" severity="secondary" outlined :disabled="isUploading"></Button>
-                <Button label="发送" icon="pi pi-send" @click="handleSendTopic" :disabled="(!topicText.trim() && !selectedFile) || isUploading" :loading="isUploading"></Button>
+                <Button label="发送" icon="pi pi-send" @click="handleSendTopic" :disabled="(!topicText.trim() && selectedFiles.length === 0) || isUploading" :loading="isUploading"></Button>
              </template>
         </Dialog>
     </div>
