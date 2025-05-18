@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
+import PreferencesView from '../views/PreferencesView.vue'
 const baseUrl = (import.meta.env && import.meta.env.BASE_URL) || '/';
 const router = createRouter({
   history: createWebHashHistory(baseUrl), // 使用 hash 模式
@@ -78,7 +79,11 @@ const router = createRouter({
           name: '饼干',
           component: () => import('../views/cookies.vue'), 
         },
-
+        {
+          path: '/preferences',
+          name: '偏好设置',
+          component: PreferencesView
+        },
       ]
     },
     {
@@ -86,7 +91,6 @@ const router = createRouter({
       name: '主页',
       component: () => import('../views/loginview.vue'),
     },
-    
   ],
 });
 export default router;

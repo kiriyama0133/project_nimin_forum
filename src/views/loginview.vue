@@ -103,15 +103,14 @@ watch(()=>store.homepage, (newValue, _) => {
         <div class="bg-white opacity-40 w-full overflow-hidden">
             <div class="bg-[url('@/assets/bg/marshmary.jpg')] bg-cover w-screen h-screen overflow-hidden">
                 <div class="grid grid-cols-16">
-                    <div v-if="screenWidth>425" class="route-div col-span-8 overflow-hidden flex justify-center items-center ">
+                    <div v-if="screenWidth>425" class="route-div z-10 col-span-10 overflow-hidden flex justify-center items-center ">
                         <routecard id="orbit" class="orbit rotate-x-50 rotate-z-45 transition-normal duration-300 hover:rotate-x-0 hover:rotate-z-0"></routecard>
                         <routate class="rotate overflow-hidden h-screen"/>
                         
                     </div>
-                <div class="w-full col-span-3 bg-[linear-gradient(to_left,rgba(255,255,255,0.9),rgba(255,255,255,0))]"></div>
-                <div class="login col-span-5 w-full bg-white opacity-70 
+                <div class="login z-11 col-span-6 w-full bg-white opacity-70 
                     backdrop-blur-2xl ease-in-out h-screen transition duration-500 
-                    hover:opacity-85 drop-shadow-2xl">
+                    hover:opacity-90 drop-shadow-2xl">
                     <div id="shrinkable-component" class="shrinkable-component">
                         <login class="card" v-if="form=='login'"></login>
                         <register class="card" v-if="form=='register'"></register>

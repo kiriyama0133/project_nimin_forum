@@ -3,7 +3,7 @@ import type { CookieResponse, UserCookieNumberResponse } from '../types/cookies'
 
 const axiosInstance = 
 axios.create({
-    baseURL: 'http://localhost:10009/api/v1/cookies', // 后端服务的基础 URL
+    baseURL: import.meta.env.VITE_API_URL + '/api/v1/cookies', // 后端服务的基础 URL
     timeout: 5000, // 请求超时时间（毫秒）
     headers: {
       'Content-Type': 'application/json', // 默认请求头

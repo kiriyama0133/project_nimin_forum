@@ -16,6 +16,7 @@ import axiosInstance_upload from '../utils/upload';
 import { useCounterStore } from '../stores/login_register';
 import { getOneCard } from '../utils/getCards';
 import type { carddata } from '../types/carddata';
+import defaultcard from '../components/defaultcard.vue';
 const starter =ref<carddata|null>(null)
 const dialog = useDialogStore();
 const toast = useToast();
@@ -39,8 +40,26 @@ const uploadProgress = ref(0);
 // --- Function to open dialog for a direct reply to the post ---
 const openDirectReplyDialog = () => {
   dialog.replyuser = ''; // Clear any specific user being replied to
+  dialog.DialogUUID = '';
   replyContent.value = ''; // Clear previous reply text
   dialog.Dialogvisible = true;
+};
+
+// 从返回数据中获取回复信息
+const getReplyInfo = (number_primary: string) => {
+  // 找到当前帖子
+  const currentPost = sendcardstore.contentdata.find(item => item.number_primary === number_primary);
+  if (!currentPost?.reply) return { displayText: '', replyToNumberPrimary: '' };
+  // 通过reply找到被回复的帖子
+  const replyCard = sendcardstore.contentdata.find(item => item.number_primary === currentPost.reply);
+  if (replyCard) {
+    const content = replyCard.content.length > 10 ? replyCard.content.substring(0, 15) + '...' : replyCard.content;
+    return {
+      displayText: `${replyCard.id}: ${content}`,
+      replyToNumberPrimary: replyCard.number_primary
+    };
+  }
+  return { displayText: '', replyToNumberPrimary: '' };
 };
 
 //成功信息提示
@@ -135,17 +154,6 @@ async function send(){
 
     try {
       console.log(`开始上传 ${selectedReplyFiles.value.length} 张回复图片...`);
-      // Using axiosInstance_upload as in subculture.vue, ensure it's correctly defined/imported if different from axiosInstance
-      // For now, assuming axiosInstance can be used or you have a specific one for uploads.
-      // Let's use `axiosInstance` for consistency if `axiosInstance_upload` is not specifically defined here.
-      // If `axiosInstance_upload` is specific to subculture, we might need to import it or use a shared upload utility.
-      // For this example, I'll use `axiosInstance` assuming it can hit the /upload-images endpoint.
-      // IMPORTANT: Ensure the correct axios instance is used for image uploads.
-      // If `axiosInstance_upload` is defined and intended for all uploads, it should be used.
-      // For now, I will assume `axiosInstance` is capable or you have a global upload instance.
-      // Let's assume `getCards.ts` (axiosInstance) can also be used for this, or you have another instance like `axiosInstance_upload` from `subculture.vue`
-      // To be safe and consistent with potential separate upload logic, let's use a placeholder for the upload call that needs to be verified:
-      // const imageUploadAxios = axiosInstance; // Or your specific `axiosInstance_upload` if available
       const imageResponse = await axiosInstance_upload.post('/upload-images', formData, { // Replace with correct axios instance if needed
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
@@ -201,12 +209,13 @@ async function send(){
       return;
   }
 
+  // 修改回复数据的准备
   const replyData: AddReplyCardClient = {
     number: originalPostNumber,
     id: userStore.userInfo.username || '',
     content: replyContent.value,
     time: getCurrentTimeFormatted(),
-    reply: dialog.replyuser || undefined,
+    reply: dialog.DialogUUID || undefined,
     imageUrls: uploadedReplyImagePaths.length > 0 ? uploadedReplyImagePaths : undefined
   };
 
@@ -333,7 +342,7 @@ const onScrollToBottom = () => {
   <div @scroll="handleScroll"
   ref="scrollContainer" class="subculture scroll-custom h-full overflow-y-auto relative">
   <div class="flex flex-col gap-1 p-2">
-        <sendcard v-if="starter"
+        <defaultcard v-if="starter"
             :number="Number(route.query.number) || 0"
             :id="String(starter?.id || '')"
             :time ="String(route.query.time || '')"
@@ -342,18 +351,17 @@ const onScrollToBottom = () => {
             :thumbs="Number(starter.thumbs)"
             :number_primary="String(route.query.number)"
             :imageUrls="starter.imageUrls" 
-        >
-            
-        </sendcard>
+        >       
+        </defaultcard>
     </div>
-    <h2 class="text-lg mb-3">以下是帖No.{{route.query.number}}的回复</h2>
     <div class="flex flex-col gap-1 p-2" v-if="sendcardstore.contentdata.length > 0">
         <sendcard v-for="(item,i) in sendcardstore.contentdata"
             :key="item.id + '-' + i" 
             :number="item.number" 
             :id="item.id"
             :index="i+1"
-            :reply="item.reply"
+            :reply="item.reply ? getReplyInfo(item.number_primary).displayText : undefined"
+            :replyToNumberPrimary="item.reply ? getReplyInfo(item.number_primary).replyToNumberPrimary : undefined"
             :time = "item.time"
             :content="item.content"
             :thumbs="item.thumbs"

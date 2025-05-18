@@ -1,18 +1,119 @@
 <script lang="ts" setup>
-import { ref } from 'vue';
 import { useCounterStore } from '../stores/login_register';
-
+import { isloading } from '../stores/isloading';
+const isloadingStore = isloading();
+import loadinganime from './loadinganime.vue';
+import { ElMessage } from 'element-plus';
+import type{Resetquest} from '../types/logins/reset';
+import { ref } from 'vue';
+import axiosInstance from '../utils/getCode';
+import axiosInstance_user from '../utils/users';
 const store = useCounterStore();
-
-function send() {
-    isloading.value = true
+const isCounting = ref(false);
+let ResetData = ref<Resetquest>({
+  email: '',
+  verify_code: '',
+  password: ''
+});
+// 重设密码
+async function reset() {
+  if (!ResetData.value.email || !ResetData.value.verify_code || !ResetData.value.password) {
+    ElMessage({
+      message: '请输入邮箱、验证码和密码',
+      type: 'warning',
+      duration: 2000
+    });
+    return;
+  }   
+  if (ResetData.value.password.length < 8) {
+    ElMessage({
+      message: '密码长度不能少于8位',
+      type: 'warning',
+      duration: 2000
+    });
+    return;
+  }
+  isloadingStore.loginloading = true;
+  try {
+    const response = await axiosInstance_user.post('/reset_password', {
+      email: ResetData.value.email,
+      verify_code: ResetData.value.verify_code,
+      password: ResetData.value.password
+    });
+    if (response.status === 200) {
+      ElMessage({
+        message: '重设密码成功',
+        type: 'success',
+        duration: 2000
+      });
+      ResetData.value = { // 重置输入框
+        email: '',
+        verify_code: '',
+        password: ''
+      };
+      store.homepage = 'login';
+    } else {
+      ElMessage({
+        message: '重设密码失败',
+        type: 'error',
+        duration: 2000
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    ElMessage({
+      message: '重设密码失败',
+      type: 'error',
+      duration: 2000
+    });
+  } finally {
+    isloadingStore.loginloading = false;
+  }
 }
-const isloading = ref(false)
+
+// 发送验证码
+async function send() {
+  if (!ResetData.value.email) {
+    ElMessage({
+      message: '请输入邮箱',
+      type: 'warning',
+      duration: 2000
+    });
+    return;
+  }
+  isloadingStore.loginloading = true;
+  try {
+    const response = await axiosInstance.post('/reset_password_verify_code', {
+      email: ResetData.value.email
+    });
+    if (response.status === 200) {
+      ElMessage({
+        message: '验证码发送成功',
+        type: 'success',
+        duration: 2000
+      });
+      isCounting.value = true;
+    } else {
+      ElMessage({
+        message: '验证码发送失败',
+        type: 'error',
+        duration: 2000
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    ElMessage({
+      message: '验证码发送失败',
+      type: 'error',
+      duration: 2000
+    });
+  } finally {
+    isloadingStore.loginloading = false;
+  }
+}
 </script>
 
 <template>
-  
-
   <div class="transition-all">
     <!-- 昵称输入框 -->
     <!-- 邮箱输入框 -->
@@ -21,6 +122,7 @@ const isloading = ref(false)
         <Message />
       </el-icon>
       <input
+        v-model="ResetData.email"
         type="email"
         placeholder="请输入邮箱"
         class="text flex-1 p-2 bg-transparent outline-none text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 rounded-md"
@@ -33,20 +135,16 @@ const isloading = ref(false)
         <Lock />
       </el-icon>
       <input
+        v-model="ResetData.verify_code"
         placeholder="输入验证码"
         class="text flex-1 p-2 bg-transparent outline-none text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 rounded-md"
       />
-      <button v-if="!isloading" @click="send"
+      <button v-if="!isloadingStore.loginloading" @click="send"
         class="btn w-18 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition duration-300"
       >
         发送验证
       </button>
-        <button  v-if="isloading" type="button" class="w-18" disabled>
-            <svg class="mr-3 size-5 animate-spin" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-            </svg>
-        </button>
+        <loadinganime></loadinganime>
     </div>
 
     <!-- 密码输入框 -->
@@ -55,6 +153,7 @@ const isloading = ref(false)
         <Lock />
       </el-icon>
       <input
+        v-model="ResetData.password"
         type="password"
         placeholder="新的密码"
         class="text flex-1 p-2 bg-transparent outline-none text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 rounded-md"
@@ -75,6 +174,15 @@ const isloading = ref(false)
 
     <!-- 按钮 -->
     <div class="flex justify-between items-center m-5">
+
+      <!-- 重设密码按钮 -->
+      <button 
+        @click="reset"
+        class="btn w-20 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 hover:shadow-lg transition duration-300"
+      >
+        重设密码
+      </button>
+
       <!-- 提交注册按钮 -->
       <button
         @click="store.homepage = 'register'"

@@ -35,11 +35,15 @@ const uploadProgress = ref(0);
 
 // --- Function to open the dialog ---
 const openTopicDialog = () => {
+    // Check if username is available
+    if (!userStore.userInfo.username) {
+        toast.add({ severity: 'warn', summary: '请登录和申请饼干', detail: '请先登录或确保用户信息已加载。', life: 3000 });
+        return;
+    }
     topicText.value = '';
     removeSelectedImage();
     isDialogVisible.value = true;
 };
-
 // --- Function to trigger hidden file input ---
 const triggerFileInput = () => {
     fileInputRef.value?.click();
