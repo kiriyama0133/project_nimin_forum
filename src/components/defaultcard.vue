@@ -31,7 +31,7 @@
             </div>
             </div>
             <div class ="flex justify-end h-5 items-center pr-2 pb-1">
-                <ToggleButton size="small" v-model="isfavorate" @click.stop="favorate()" onIcon="pi pi-star-fill" offIcon="pi pi-star" onLabel="已收藏" offLabel="收藏"/>
+                <ToggleButton size="small" v-model="isfavorate" @change="favorite()" onIcon="pi pi-star-fill" offIcon="pi pi-star" onLabel="已收藏" offLabel="收藏"/>
             </div>
         </div>
     </div>
@@ -54,7 +54,10 @@ import { useRouter } from 'vue-router';
 import  'primeicons/primeicons.css'
 import ToggleButton from 'primevue/togglebutton';
 import Dialog from 'primevue/dialog';
-import { ref } from 'vue'
+import { ref,onMounted } from 'vue'
+import { toggleFavorite } from '../utils/favorite';
+import axiosInstance from '../utils/favoritestatus';
+import { ca } from 'element-plus/es/locale/index.mjs';
 
 const IMAGE_BASE_URL = 'https://localhost/i/';
 
@@ -79,21 +82,36 @@ const openImageModal = (imageUrl: string) => {
     isImageModalVisible.value = true;
 };
 
-function favorate() {
-    const favorites = JSON.parse(localStorage.getItem('favoriteNumbers') || '[]')
-
-    if (isfavorate.value) {
-        if (!favorites.includes(props.number)) {
-            favorites.push(props.number)
-            localStorage.setItem('favoriteNumbers', JSON.stringify(favorites))
-            console.log("已收藏，当前收藏列表:", favorites)
-        }
-    } else {
-        const updatedFavorites = favorites.filter((num: any) => num !== props.number)
-        localStorage.setItem('favoriteNumbers', JSON.stringify(updatedFavorites))
-        console.log("已取消收藏，当前收藏列表:", updatedFavorites)
+const favorite =async ()=>{
+    const isNowfavorate = isfavorate.value
+    console.log(isNowfavorate)
+    try{
+        await toggleFavorite({ 
+            card_number: Number(props.number),
+            action: isNowfavorate ? 'favorate' : 'unfavorate'
+        })
+        console.log(isNowfavorate?'收藏成功':'取消收藏成功')
+    }
+    catch(error){
+        console.error("收藏失败",error)
     }
 }
+const checkfavorite =async()=>{
+    try{
+        const response= await axiosInstance.get('/favoratestatus',{
+            params:{
+                card_number: props.number
+            }
+        })
+        isfavorate.value = response.data.isfavorate
+    }
+    catch(error){
+        console.error('获取收藏状态失败:',error)
+    }
+}
+onMounted(()=>{
+    checkfavorite()
+})
 </script>
 <style scoped>
 .defaultcard{
