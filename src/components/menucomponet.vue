@@ -7,13 +7,6 @@ import {useCarddata} from '../stores/carddata'
 import { useRouter } from 'vue-router';
 import { getBackComfirm } from '../stores/backcomfirm';
 import { useToast } from "primevue/usetoast";
-const getbackcomfirm = getBackComfirm()
-const cardstore = useCarddata()
-const router = useRouter()
-const visible = ref(false);
-const toast = useToast()
-const suggest = ref('')
-const email = ref('')
 import Dialog from 'primevue/dialog';
 import PanelMenu from 'primevue/panelmenu';
 import InputText from 'primevue/inputtext';
@@ -22,9 +15,19 @@ import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
 import axiosComfirm from '../utils/comfirm'
 import { isloading } from '../stores/isloading';
+import { useDrawerStore } from '../stores/drawer';
+const drawerStore = useDrawerStore();
+const getbackcomfirm = getBackComfirm()
+const cardstore = useCarddata()
+const router = useRouter()
+const visible = ref(false);
+const toast = useToast()
+const suggest = ref('')
+const email = ref('')
 const isloadingstore = isloading();
 //动态去得到对应的内容的卡片，并且刷新页面
 function refresh(path: string, api: string, category: string) {
+    drawerStore.Drawervisible = false;
     console.log(`刷新分类: ${category}, 路径: ${path}, API: ${api}`);
     cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
     isloadingstore.dataloading = true;
@@ -321,9 +324,19 @@ const items = ref([
         ]
     },
     {
-        label: '联系管理员',
-        icon: 'pi pi-envelope',
-        command: () => { visible.value = true }
+        label: '设置',
+        items: [
+            {
+                label: '偏好设置',
+                icon: 'pi pi-cog',
+                command: () => { router.push('/preferences') }
+            },
+            {
+                label: '联系管理员',
+                icon: 'pi pi-envelope',
+                command: () => { visible.value = true }
+            }
+        ]
     }
 ]);
 </script>
@@ -331,7 +344,7 @@ const items = ref([
 <Menu class="w-40 overflow-x-hidden">
     <template #start> 
         <div class="card flex justify-center">
-            <PanelMenu :model="items" class="w-full md:w-80" />
+            <PanelMenu :model="items" class="w-full md:w-80 font-mono font-bold" />
         </div>
     </template>
 </Menu> 

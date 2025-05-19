@@ -79,6 +79,7 @@ export type UserPublic = {
 
 export type UserRegister = {
   email: string
+  verify_code: string
   password: string
   full_name?: string | null
 }

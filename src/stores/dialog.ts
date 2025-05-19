@@ -4,8 +4,10 @@ import { ref } from 'vue';
 export const useDialogStore = defineStore('drawer', () => {
     let Dialogvisible = ref<boolean>(false);
     let replyuser = ref<string>("");
+    let DialogUUID = ref<string>("");
   return {
     Dialogvisible,
-    replyuser
+    replyuser,
+    DialogUUID
   };
 });

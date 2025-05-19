@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import 'primeicons/primeicons.css';
 import Button from 'primevue/button';
 import Menubar from 'primevue/menubar';
@@ -7,13 +7,38 @@ import InputGroup from 'primevue/inputgroup';
 import InputText from 'primevue/inputtext';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Popover from 'primevue/overlaypanel'; // Popover 实际是 OverlayPanel
-import ToggleSwitch from 'primevue/toggleswitch';
-import { useRouter } from 'vue-router';
-import {useDarkmode} from '../stores/darkmode'
+import { useRouter, useRoute } from 'vue-router';
 import { OpenAPI } from '../client/core/OpenAPI';
-const darkstore = useDarkmode()
+import { ElMessage } from 'element-plus';
+import FontSettings from './FontSettings.vue';
 const router = useRouter()
-const checked = ref(false);
+const route = useRoute()
+// 获取当前URL
+let currentUrl = ref(window.location.href);
+// 监听路由变化
+watch(
+  () => route.fullPath,
+  () => {
+    currentUrl.value = window.location.href;
+  }
+);
+// 复制URL功能
+const copyCurrentUrl = () => {
+  navigator.clipboard.writeText(currentUrl.value).then(() => {
+    ElMessage({
+      message: '链接已复制到剪贴板',
+      type: 'success',
+      duration: 2000
+    });
+  }).catch(() => {
+    ElMessage({
+      message: '复制失败，请手动复制',
+      type: 'error',
+      duration: 2000
+    });
+  });
+};
+
 const items_ = ref([
    {
        label: '主页',
@@ -32,15 +57,12 @@ const op = ref();
 const toggle = (event:any) => {
     op.value.toggle(event);
 }
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('darkmode');
-    darkstore.Darkmode = true
-}
 function DeleteToken() {
     localStorage.removeItem('access_token');
     OpenAPI.TOKEN = undefined;
     router.push('/loginview')
 }
+const showFontSettings = ref(false);
 </script>
 <template>
 <Menubar :model="items_" breakpoint="520px" :base-z-index="90">
@@ -48,15 +70,6 @@ function DeleteToken() {
     <template #end>
         <div class="flex items-center gap-2">
             <div class="flex gap-2 items-center">
-                    <ToggleSwitch v-model="checked" @click="toggleDarkMode()">
-                        <template #handle="{ checked }">
-                            <i :class="['!text-xs pi', { 'pi-moon': checked, 'pi-sun': !checked }]" />
-                        </template>
-                    </ToggleSwitch>
-            
-                <Button  :pt="{
-                    root:{class: 'btn-cursor'},
-                }" variant="outlined" raised style="font-size: 10px;" class="text w-18 h-8" label="收藏" icon="pi pi-star" @click="router.push('/favorate')" />
                 <Button @click="router.push('/cookies')" :pt="{
                     root:{class: 'btn-cursor'}
                 }" variant="outlined" raised style="font-size: 10px;" 
@@ -68,34 +81,38 @@ function DeleteToken() {
                 <Button :pt="{
                     root:{class: 'btn-cursor'}
                 }" variant="outlined" raised class="w-18 h-8" 
-                style="font-size: 10px;" type="button" icon="pi pi-user" label="用户" @click="toggle" />
+                style="font-size: 10px;" type="button" icon="pi pi-user" label="操作" @click="toggle" />
                     <Popover :base-z-index="90" ref="op">
                         <div class="flex flex-col gap-1 w-[16rem]">
+
                             <div>
                                 <span class="font-medium block mb-2">分享这个贴</span>
                                 <InputGroup>
-                                    <InputText value="https://primevue.org/12323ff26t2g243g423g234gg52hy25XADXAG3" readonly class="w-[16rem]"></InputText>
-                                    <InputGroupAddon>
+                                    <InputText :value="currentUrl" readonly class="w-[16rem]"></InputText>
+                                    <InputGroupAddon @click="copyCurrentUrl" class="cursor-pointer">
                                         <i class="pi pi-copy"></i>
                                     </InputGroupAddon>
                                 </InputGroup>
                             </div>
+
                             <div>
-                            </div>
-                            <div>
-                                <span class="font-medium block mb-2">用户</span>
-                                <div class="flex flex-col justity-center gap-2 items-center">
+                                <span class="font-medium block mb-2">历史操作和偏好</span>
+                                <div class="justity-center gap-2 items-center">
                                     <Button variant="outlined" 
                                     raised style="font-size: 16px;" class="text w-30 h-8" 
-                                    label="我的回复" icon="pi pi-star" />
+                                    label="我的回复"  icon="pi pi-reply"/>
+                                    <Button variant="outlined"  raised style="font-size: 16px;" 
+                                    class="text w-30 h-8" label="我的收藏" 
+                                    icon="pi pi-star" @click="router.push('/favorate')" />
                                     <Button variant="outlined" 
                                     raised style="font-size: 16px;" class="text w-30 h-8" 
-                                    label="我的账号" icon="pi pi-star" />
+                                    label="偏好设置" icon="pi pi-cog" @click="router.push('/preferences')" />
                                     <Button @click="DeleteToken" variant="outlined" 
                                     raised style="font-size: 16px;" class="text w-30 h-8" 
-                                    label="退出账号" icon="pi pi-star" />
+                                    label="退出账号" icon="pi pi-sign-out" />
                                 </div>
                             </div>
+
                         </div>
                     </Popover>
                 </div>
@@ -103,6 +120,8 @@ function DeleteToken() {
         </div>
     </template>
 </Menubar>
+
+<FontSettings v-if="showFontSettings" @close="showFontSettings = false" />
 </template>
 <style>
 .text{

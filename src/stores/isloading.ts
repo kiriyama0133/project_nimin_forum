@@ -5,6 +5,8 @@ export const isloading = defineStore('islogin', () => {
     let dataloading = ref(false);
     let dataend = ref(false);
     let currentItemCount = ref(0);
+    let loginloading = ref(false);
+    
 
     const resetLoadingState = () => {
         dataloading.value = false;
@@ -17,6 +19,7 @@ export const isloading = defineStore('islogin', () => {
         dataloading,
         dataend,
         currentItemCount,
-        resetLoadingState
+        resetLoadingState,
+        loginloading
     };
 });

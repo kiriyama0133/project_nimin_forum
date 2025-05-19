@@ -4,16 +4,30 @@ import { useCounterStore } from '../stores/login_register';
 import { UsersService } from '../client';
 import { ref } from 'vue';
 import type { UserRegister } from '../client';
+import { isloading } from '../stores/isloading';
+import loadinganime from './loadinganime.vue';
+import axiosInstance from '../utils/getCode';
+import countsecond from './countsecond.vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute();
+const isloadingStore = isloading();
 const store = useCounterStore();
+const isCounting = ref(false);
+
+// 获取当前URL
+console.log('当前路由路径:', route.path);
+console.log('当前完整URL:', window.location.href);
+
 function goToLogin() {
   store.homepage = 'login';
 }
 let RegisterData = ref<UserRegister>({
   email: '',
+  verify_code: '',
   password: '',
   full_name: ''
 });
-
 const RegisterSend = async () => {
   if (!RegisterData.value.email || !RegisterData.value.password) {
       ElMessage({
@@ -31,23 +45,26 @@ const RegisterSend = async () => {
       });
       return;
    }
-
+   if (!RegisterData.value.verify_code.length) {
+    ElMessage({
+      message: '请输入验证码',
+      type: 'warning',
+      duration: 3000
+    });
+    return;
+   }
   store.loading = true;
   try {
     const response = await UsersService.registerUser({
       requestBody: RegisterData.value
     });
-
     console.log('Registration Successful:', response);
-
     ElMessage({
       message: '注册成功！请登录。',
       type: 'success',
       duration: 2000
     });
-
     store.homepage = 'login';
-
   } catch (error: any) {
     console.error('注册请求失败:', error);
     let errorMessage = '注册失败，请稍后重试。';
@@ -70,6 +87,52 @@ const RegisterSend = async () => {
   }
 };
 
+// 发送验证码
+async function sendcode() {
+  if (!RegisterData.value.email) {
+    ElMessage({
+      message: '请输入邮箱',
+      type: 'warning',
+      duration: 2000
+    });
+    return;
+  }
+  isloadingStore.loginloading = true;
+  try {
+    const response = await axiosInstance.post('/get_verify_code', {
+      email: RegisterData.value.email
+    });
+    if (response.status === 200) {
+      ElMessage({
+        message: '验证码发送成功',
+        type: 'success',
+        duration: 2000
+      });
+      isCounting.value = true;
+    } else {
+      ElMessage({
+        message: '验证码发送失败',
+        type: 'error',
+        duration: 2000
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    ElMessage({
+      message: '验证码发送失败',
+      type: 'error',
+      duration: 2000
+    });
+  } finally {
+    isloadingStore.loginloading = false;
+  }
+}
+
+const handleCountdownEnd = () => {
+  isCounting.value = false;
+};
+
+// 注册
 function handleRegister() {
   RegisterSend();
 }
@@ -86,6 +149,24 @@ function handleRegister() {
         placeholder="请输入邮箱"
         class="text flex-1 p-2 bg-transparent outline-none text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 rounded-md"
       />
+    </div>
+
+    <div class="flex items-center w-full p-2 bg-pink-100 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 mb-5">
+      <el-icon class="text-gray-500 mr-2">
+        <Lock />
+      </el-icon>
+      <input
+        v-model="RegisterData.verify_code"
+        placeholder="输入验证码"
+        class="text w-20 flex-1 p-2 bg-transparent outline-none text-gray-700 placeholder-gray-400 focus:ring-2 focus:ring-blue-500 rounded-md"
+      />
+      <button v-if="!isloadingStore.loginloading && !isCounting" @click="sendcode"
+        class="btn whitespace-nowrap px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 hover:shadow-lg transition duration-300"
+      >
+        <span>发送验证</span>
+      </button>
+      <countsecond v-if="isCounting" :start-count="true" @countdown-end="handleCountdownEnd" />
+      <loadinganime v-if="isloadingStore.loginloading"></loadinganime>
     </div>
 
     <!-- Password Input -->

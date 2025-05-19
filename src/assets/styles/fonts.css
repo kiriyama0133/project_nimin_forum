@@ -1,0 +1,76 @@
+/* 默认字体设置 */
+:root {
+  --font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-size-small: 14px;
+  --font-size-large: 18px;
+  --font-weight-normal: 400;
+  --font-weight-bold: 600;
+}
+
+/* 应用字体到所有元素 */
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+}
+
+/* 标题字体 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-bold);
+}
+
+/* 字体类 */
+.font-microsoft-yahei {
+  font-family: 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+}
+
+.font-simsun {
+  font-family: 'SimSun', '宋体', serif;
+}
+
+.font-simhei {
+  font-family: 'SimHei', '黑体', sans-serif;
+}
+
+.font-kaiti {
+  font-family: 'KaiTi', '楷体', serif;
+}
+
+.font-arial {
+  font-family: Arial, sans-serif;
+}
+
+/* 字体大小类 */
+.text-small {
+  font-size: 14px;
+}
+
+.text-medium {
+  font-size: 16px;
+}
+
+.text-large {
+  font-size: 18px;
+}
+
+/* 回复文本样式类 */
+.Reply_text {
+  color: #1e90ff;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.User_Id {
+  color: #32cd32;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Mate样式类 */
+.Mate {
+  color: #666;
+  font-weight: normal;
+  font-size: 14px;
+}

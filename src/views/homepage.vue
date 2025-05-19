@@ -11,11 +11,17 @@ import Button from 'primevue/button';
 import { Cookie, CookieResponse } from '../types/cookies';
 import { fetchUserCookies } from '../utils/getCookies';
 import {useCounterStore} from '../stores/login_register';
-// import axiosInstance from '../utils/getCards'
+import { useCarddata } from '../stores/carddata';
+import axiosInstance from '../utils/getCards';
+import { isloading as loadingStore } from '../stores/isloading';
+
 const drawerStore = useDrawerStore()
 const router = useRouter()
 let isloading = ref(true);
 const userStore = useCounterStore();
+const cardstore = useCarddata();
+const isloadingstore = loadingStore();
+
 interface CookieInfo {
   id: string;
   name: string;
@@ -34,7 +40,7 @@ const fetchUserCookieData = async () => {
     bannedCookies.value = [];
 
     const fetchedCookies: Cookie[] = response.data;
-    console.log("Fetched cookies from backend:", fetchedCookies);
+   //console.log("Fetched cookies from backend:", fetchedCookies);
 
     fetchedCookies.forEach(backendCookie => {
       if (backendCookie.isbanned) {
@@ -50,10 +56,10 @@ const fetchUserCookieData = async () => {
           status: backendCookie.inused ? 'in-use' : 'available',
         });
         userStore.userInfo.username = userCookies.value.find(c => c.status === 'in-use')?.name || '';
-        console.log("检测到了现在正在使用",userStore.userInfo.username)
+        //console.log("检测到了现在正在使用",userStore.userInfo.username)
       }
     });
-    console.log("Cookie data processed from backend.");
+    //console.log("Cookie data processed from backend.");
   } catch (error: any) {
     console.error('Failed to fetch user cookie data:', error);
     userCookies.value = [];
@@ -70,6 +76,25 @@ onMounted(() => {
       router.push('/Introduction');
    }
    check_loading();
+   fetchUserCookieData();
+   // 在进入页面时加载综合板内容
+   cardstore.carddata.splice(0, cardstore.carddata.length);
+   isloadingstore.dataloading = true;
+   cardstore.category = 'total';
+   isloadingstore.dataend = false;
+   axiosInstance.post('/getcard', { skip: 0, category: 'total' }).then((response) => {
+      const receivedCards = response.data.data;
+      if (receivedCards && Array.isArray(receivedCards)) {
+         cardstore.carddata.push(...receivedCards);
+         if (receivedCards.length < 5) {
+            isloadingstore.dataend = true;
+         }
+      }
+   }).catch(error => {
+      console.error('加载初始数据失败:', error);
+   }).finally(() => {
+      isloadingstore.dataloading = false;
+   });
 });
 function updateScreenWidth() {screenWidth.value = window.innerWidth;console.log(screenWidth.value) }// 更新屏幕宽度
 
@@ -92,10 +117,6 @@ function check_loading(){
       }
    }, 300);
 }
-onMounted(() => {
-   check_loading();
-   fetchUserCookieData();
-});
 
 </script>
 <template>
@@ -151,9 +172,6 @@ onMounted(() => {
 body{
    position: relative; 
    cursor: url('@/assets/ani/select_2.png'), pointer;
-}
-.drawer-btn {
-  /* Style as needed */
 }
 .fade-enter-active,
 .fade-leave-active {
