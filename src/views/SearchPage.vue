@@ -87,6 +87,7 @@ watch(search, (newValue) => {
                 :content="card.content"
                 :time="card.time"
                 :imageUrls="card.imageUrls"
+                :category="card.category"
             />
         </div>
 

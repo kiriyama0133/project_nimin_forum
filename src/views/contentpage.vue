@@ -133,6 +133,24 @@ const removeSelectedReplyImages = () => {
     }
 };
 
+const handleReplyPaste = (e: ClipboardEvent) => {
+  if (!e.clipboardData) return
+  for (const item of e.clipboardData.items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile()
+      if (file) {
+        if (selectedReplyFiles.value.length < 3) {
+          const url = URL.createObjectURL(file)
+          selectedReplyFiles.value.push(file)
+          replyImagePreviewUrls.value.push(url)
+        } else {
+          toast.add({ severity: 'warn', summary: '提示', detail: '最多只能选择3张回复图片。', life: 3000 });
+        }
+      }
+    }
+  }
+}
+
 // MODIFIED: send() function to include image uploading for replies
 async function send(){
   if (!replyContent.value.trim() && selectedReplyFiles.value.length === 0) {
@@ -349,7 +367,7 @@ const onScrollToBottom = () => {
             :time="String(route.query.time || '')"
             :content="String(starter?.content || '')"
             :thumbs="Number(starter.thumbs)"
-            :imageUrls="starter.imageUrls" 
+            :imageUrls="starter.imageUrls || []" 
         >       
         </defaultcard>
     </div>
@@ -400,7 +418,14 @@ const onScrollToBottom = () => {
                 <p v-if="dialog.replyuser">{{ dialog.replyuser }}</p>
             </div>
             <div class="flex flex-col gap-3">
-                <Textarea v-model="replyContent" id="replyInput" class="w-full resize-none" rows="5" placeholder="说点什么吧..." />
+                <Textarea
+                  v-model="replyContent"
+                  id="replyInput"
+                  class="w-full resize-none"
+                  rows="5"
+                  placeholder="说点什么吧..."
+                  @paste="handleReplyPaste"
+                />
                 
                 <!-- ADDED: Reply Image Upload Section -->
                 <div>
