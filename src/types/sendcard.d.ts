@@ -55,4 +55,15 @@ export interface UserCardResponse {
     DefaultCard: DefaultCard[];
     AddReplyCard: AddReplyCard[];
 }
+
+// 搜索帖子请求
+export interface SearchCardRequest {
+    content: string;
+    skip: number;
+}
+
+// 搜索帖子响应
+export interface SearchCardResponse {
+    DefaultCard: DefaultCard[];
+}
 // --- End Interfaces for fetching replies ---

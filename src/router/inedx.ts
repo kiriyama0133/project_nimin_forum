@@ -89,6 +89,11 @@ const router = createRouter({
           name: '我的帖子',
           component: () => import('../views/MyreplyPage.vue'),
         },
+        {
+          path: '/search',
+          name: '搜索',
+          component: () => import('../views/SearchPage.vue'),
+        },
       ]
     },
     {

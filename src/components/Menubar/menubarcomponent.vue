@@ -56,6 +56,9 @@ const items_ = ref([
    {
        label: '搜索',
        icon: 'pi pi-search',
+       command:()=>{
+        router.push('/search')
+    }
     },
 ]);
 
