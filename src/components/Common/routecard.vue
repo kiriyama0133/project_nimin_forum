@@ -9,7 +9,7 @@ function Hi(){
     dark:-outline-offset-1 dark:outline-white/10" style="height: 50px;width: 160px;">
         <div>
             <slot name="header">
-                <img class="size-6 shrink-0" src="../assets/bg/icons8.gif" alt="ChitChat Logo" />
+                <img class="size-6 shrink-0" src="@/assets/bg/icons8.gif" alt="ChitChat Logo" />
             </slot>
         </div>
         <div>

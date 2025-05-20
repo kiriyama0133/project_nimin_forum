@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import bg from '../assets/bg/defalut.jpg'
+import bg from '@/assets/bg/defalut.jpg'
 </script>
 <template>
     <div alt="亚文化的首页的头顶区域" class="flex p-4 justify-center gap-10">

@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { useCounterStore } from '../stores/login_register';
-import { isloading } from '../stores/isloading';
+import { useCounterStore } from '../../stores/login_register';
+import { isloading } from '../../stores/isloading';
 const isloadingStore = isloading();
-import loadinganime from './loadinganime.vue';
+import loadinganime from '../Common/loadinganime.vue';
 import { ElMessage } from 'element-plus';
-import type{Resetquest} from '../types/logins/reset';
+import type{Resetquest} from '../../types/logins/reset';
 import { ref } from 'vue';
-import axiosInstance from '../utils/getCode';
-import axiosInstance_user from '../utils/users';
+import axiosInstance from '../../utils/getCode';
+import axiosInstance_user from '../../utils/users';
 const store = useCounterStore();
 const isCounting = ref(false);
 let ResetData = ref<Resetquest>({

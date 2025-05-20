@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import FontSettings from '@/components/FontSettings.vue';
-import ThemeSettings from '@/components/ThemeSettings.vue';
-import NotificationSettings from '@/components/NotificationSettings.vue';
-import PrivacySettings from '@/components/PrivacySettings.vue';
+import FontSettings from '@/components/Preferences/FontSettings.vue';
+import ThemeSettings from '@/components/Preferences/ThemeSettings.vue';
+import NotificationSettings from '@/components/Preferences/NotificationSettings.vue';
+import PrivacySettings from '@/components/Preferences/PrivacySettings.vue';
 
 const activeTab = ref('font');
 </script>

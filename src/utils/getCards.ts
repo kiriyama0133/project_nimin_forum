@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { NewCardRequest, NewCardResponse, UserCardRequest, UserCardResponse } from '@/types/sendcard.d';
 const axiosInstance = 
 axios.create({
     baseURL: import.meta.env.VITE_API_URL + '/api/v1/cards', // 后端服务的基础 URL
@@ -88,22 +89,7 @@ export const addCookie = async (): Promise<CookieApiResponse> => {
   }
 };
 
-// Assuming DefaultCard structure based on typical usage and backend model hints
-export interface DefaultCard {
-  id: string; 
-  content: string;
-  time: string;
-  number: number; 
-  category: string;
-}
 
-export interface NewCardRequest {
-  category: string;
-}
-
-export interface NewCardResponse {
-  data: DefaultCard | null;
-}
 
 export const fetchNewestCard = async (category: string): Promise<NewCardResponse> => {
   const payload: NewCardRequest = { category };
@@ -116,3 +102,16 @@ export const fetchNewestCard = async (category: string): Promise<NewCardResponse
     return { data: null }; 
   }
 };
+
+// 用户查看自己发表的帖子
+export const getUserCard = async (request: UserCardRequest): Promise<UserCardResponse> => {
+  try {
+    const response = await axiosInstance.post<UserCardResponse>('get-user-cards', request);
+    console.log("获取到的帖子",response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching user card:', error);
+    return { DefaultCard: [], SendCard: [] };
+  }
+};
+

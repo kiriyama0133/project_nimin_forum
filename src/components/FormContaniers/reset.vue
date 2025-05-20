@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import resetform from './resetform.vue';
+import resetform from '../Forms/resetform.vue';
 import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 gsap.registerPlugin(MotionPathPlugin);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import defaultcard from '../components/defaultcard.vue';
+import defaultcard from '../components/Cards/defaultcard.vue';
 import axiosInstance from '../utils/getCards'
 import {useCarddata} from '../stores/carddata'
 import { onMounted, ref } from 'vue';

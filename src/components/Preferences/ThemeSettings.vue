@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useDarkmode } from '../stores/darkmode';
+import { useDarkmode } from '../../stores/darkmode';
 
 const darkstore = useDarkmode();
 const followSystem = ref(false);

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import loading from '../components/loading.vue';
-import menubarcomponent from '../components/menubarcomponent.vue';
+import loading from '../components/Common/loading.vue';
+import menubarcomponent from '../components/Menubar/menubarcomponent.vue';
 import 'primeicons/primeicons.css';
-import menucomponet from '../components/menucomponet.vue';
+import menucomponet from '../components/Menubar/menucomponet.vue';
 import { useRouter } from 'vue-router';
 import Drawer from 'primevue/drawer';
 import { useDrawerStore} from '../stores/drawer'
@@ -56,7 +56,7 @@ const fetchUserCookieData = async () => {
           status: backendCookie.inused ? 'in-use' : 'available',
         });
         userStore.userInfo.username = userCookies.value.find(c => c.status === 'in-use')?.name || '';
-        //console.log("检测到了现在正在使用",userStore.userInfo.username)
+        console.log("检测到了现在正在使用",userStore.userInfo.username)
       }
     });
     //console.log("Cookie data processed from backend.");

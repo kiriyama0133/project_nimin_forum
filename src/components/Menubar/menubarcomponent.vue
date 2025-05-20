@@ -8,11 +8,17 @@ import InputText from 'primevue/inputtext';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Popover from 'primevue/overlaypanel'; // Popover 实际是 OverlayPanel
 import { useRouter, useRoute } from 'vue-router';
-import { OpenAPI } from '../client/core/OpenAPI';
+import { OpenAPI } from '../../client/core/OpenAPI';
 import { ElMessage } from 'element-plus';
-import FontSettings from './FontSettings.vue';
+import FontSettings from '../Preferences/FontSettings.vue';
+import type { UserCardRequest, UserCardResponse } from '@/types/sendcard.d';
+import { useCounterStore } from '@/stores/login_register';
+import { getUserCard } from '@/utils/getCards';
+import { useCarddata } from '@/stores/carddata';
+const store = useCounterStore();
 const router = useRouter()
 const route = useRoute()
+const cardstore = useCarddata();
 // 获取当前URL
 let currentUrl = ref(window.location.href);
 // 监听路由变化
@@ -62,6 +68,19 @@ function DeleteToken() {
     OpenAPI.TOKEN = undefined;
     router.push('/loginview')
 }
+async function UserCard() {
+    const request: UserCardRequest = {
+        Cookie: store.userInfo.username,
+        skip: 0
+    }
+    const response:UserCardResponse = await getUserCard(request);
+    // 清空数组
+    cardstore.UserCard.defaultcard = [];
+    cardstore.UserCard.addreplycard = [];
+    cardstore.UserCard.defaultcard.push(...response.DefaultCard);
+    cardstore.UserCard.addreplycard.push(...response.AddReplyCard);
+    router.push('/mycard')
+}
 const showFontSettings = ref(false);
 </script>
 <template>
@@ -97,10 +116,10 @@ const showFontSettings = ref(false);
 
                             <div>
                                 <span class="font-medium block mb-2">历史操作和偏好</span>
-                                <div class="justity-center gap-2 items-center">
+                                <div class="grid grid-cols-2 gap-2">
                                     <Button variant="outlined" 
                                     raised style="font-size: 16px;" class="text w-30 h-8" 
-                                    label="我的回复"  icon="pi pi-reply"/>
+                                    label="我的回复"  icon="pi pi-reply" @click="UserCard"/>
                                     <Button variant="outlined"  raised style="font-size: 16px;" 
                                     class="text w-30 h-8" label="我的收藏" 
                                     icon="pi pi-star" @click="router.push('/favorate')" />

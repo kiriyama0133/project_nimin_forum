@@ -7,7 +7,7 @@
     </button>
 </template>
 <script setup lang="ts">
-import { isloading } from '../stores/isloading';
+import { isloading } from '../../stores/isloading';
 const isloadingStore = isloading();
 </script>
 

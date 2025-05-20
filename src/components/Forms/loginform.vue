@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus';
-import {useCounterStore} from '../stores/login_register'
+import {useCounterStore} from '../../stores/login_register'
 const store = useCounterStore()
 import { useRouter } from 'vue-router';
-import { LoginService, OpenAPI } from '../client';
+import { LoginService, OpenAPI } from '../../client';
 import { ref } from 'vue';
 const router = useRouter()
 let LoginData = ref({

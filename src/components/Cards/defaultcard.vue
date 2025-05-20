@@ -96,7 +96,7 @@ function favorate() {
 </script>
 <style scoped>
 .defaultcard{
-cursor: url('../assets/ani/link_2.png'), pointer;
+cursor: url('@/assets/ani/link_2.png'), pointer;
 }
 .Mate {
   font-weight: inherit;
