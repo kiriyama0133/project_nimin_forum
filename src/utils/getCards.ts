@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { NewCardRequest, NewCardResponse, UserCardRequest, UserCardResponse } from '@/types/sendcard.d';
+import type { DefaultCard, NewCardRequest, NewCardResponse, SearchCardRequest, SearchCardResponse, UserCardRequest, UserCardResponse } from '@/types/sendcard.d';
 const axiosInstance = 
 axios.create({
     baseURL: import.meta.env.VITE_API_URL + '/api/v1/cards', // 后端服务的基础 URL
@@ -111,7 +111,20 @@ export const getUserCard = async (request: UserCardRequest): Promise<UserCardRes
     return response.data;
   } catch (error: any) {
     console.error('Error fetching user card:', error);
-    return { DefaultCard: [], SendCard: [] };
+    return { DefaultCard: [], AddReplyCard: [] };
   }
 };
+
+// 搜索帖子
+export const searchCard = async (request:SearchCardRequest): Promise<DefaultCard[]> => {
+  try {
+    const response = await axiosInstance.post<SearchCardResponse>(`find-card-by-content`,request);
+    console.log("搜索到的帖子",response.data);
+    return response.data.DefaultCard;
+  } catch (error: any) {
+    console.error("搜索时发生错误",error)
+    return []
+  }
+}
+
 
