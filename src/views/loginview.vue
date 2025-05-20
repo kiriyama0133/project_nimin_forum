@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import routecard from '../components/routecard.vue';
+import routecard from '../components/Common/routecard.vue';
 import { onMounted, ref, watch } from 'vue';
 import {useCounterStore} from '../stores/login_register'
-import routate from '../components/routate.vue';
-import login from './login.vue';
-import register from './register.vue';
-import reset from '../components/reset.vue';
+import routate from '../components/Common/routate.vue';
+import login from '../components/FormContaniers/login.vue';
+import register from '../components/FormContaniers/register.vue';
+import reset from '../components/FormContaniers/reset.vue';
 import { useRouter } from 'vue-router';
 import { LoginService, OpenAPI } from '../client';
 import { getUserIdFromToken } from '../utils/fromTokenGetID';
-import loading from '../components/loading.vue';
+import loading from '../components/Common/loading.vue';
 // 获取用户id
 const userId = getUserIdFromToken();
 const store = useCounterStore();
@@ -103,12 +103,12 @@ watch(()=>store.homepage, (newValue, _) => {
         <div class="bg-white opacity-40 w-full overflow-hidden">
             <div class="bg-[url('@/assets/bg/marshmary.jpg')] bg-cover w-screen h-screen overflow-hidden">
                 <div class="grid grid-cols-16">
-                    <div v-if="screenWidth>425" class="route-div z-10 col-span-10 overflow-hidden flex justify-center items-center ">
+                    <div v-if="screenWidth>425" class="route-div z-10 col-span-11 overflow-hidden flex justify-center items-center ">
                         <routecard id="orbit" class="orbit rotate-x-50 rotate-z-45 transition-normal duration-300 hover:rotate-x-0 hover:rotate-z-0"></routecard>
                         <routate class="rotate overflow-hidden h-screen"/>
                         
                     </div>
-                <div class="login z-11 col-span-6 w-full bg-white opacity-70 
+                <div class="login z-11 col-span-5 w-full bg-white opacity-70 
                     backdrop-blur-2xl ease-in-out h-screen transition duration-500 
                     hover:opacity-90 drop-shadow-2xl">
                     <div id="shrinkable-component" class="shrinkable-component">

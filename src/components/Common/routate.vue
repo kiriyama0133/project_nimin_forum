@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import svg from '../assets/bg/icons8.gif'
-import routecard from './routecard.vue';
+import svg from '@/assets/bg/icons8.gif'
+import routecard from '@/components/Common/routecard.vue';
 // Define the structure for card items
 interface CardItem {
   id: number;
@@ -271,7 +271,7 @@ svg {
   box-shadow: 0px 18px 36px -18px rgba(12, 5, 46, 0.3),
     0px 30px 60px -12px rgba(12, 5, 46, 0.25);
   border-radius: 50%;
-  background-image: url(../assets/bg/03.gif);
+  background-image: url(@/assets/bg/03.gif);
   overflow: hidden;
 }
 
@@ -287,7 +287,7 @@ svg {
   opacity: 0.25;
   box-shadow: 0px 18px 36px -18px rgba(12, 5, 46, 0.3), 0px 30px 60px -12px rgba(12, 5, 46, 0.25);
   border-radius: 50%;
-  background-image: url(../assets/bg/03.gif);
+  background-image: url(@/assets/bg/03.gif);
   overflow: hidden;
 }
 

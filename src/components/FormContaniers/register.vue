@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import registerform from '../components/registerform.vue';
+import registerform from '../Forms/registerform.vue';
 import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 gsap.registerPlugin(MotionPathPlugin);

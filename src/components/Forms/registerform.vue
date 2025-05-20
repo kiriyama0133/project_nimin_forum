@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { ElMessage } from 'element-plus';
-import { useCounterStore } from '../stores/login_register';
-import { UsersService } from '../client';
+import { useCounterStore } from '../../stores/login_register';
+import { UsersService } from '../../client';
 import { ref } from 'vue';
-import type { UserRegister } from '../client';
-import { isloading } from '../stores/isloading';
-import loadinganime from './loadinganime.vue';
-import axiosInstance from '../utils/getCode';
-import countsecond from './countsecond.vue';
+import type { UserRegister } from '../../client';
+import { isloading } from '../../stores/isloading';
+import loadinganime from '../Common/loadinganime.vue';
+import axiosInstance from '../../utils/getCode';
+import countsecond from '../Common/countsecond.vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import sendcard from '../components/sendcard.vue';
+import sendcard from '../components/Cards/sendcard.vue';
 import { ElMessage } from 'element-plus'
 import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
+import ProgressBar from 'primevue/progressbar';
 import { useToast } from "primevue/usetoast";
 import {useDialogStore} from '../stores/dialog'
 import axiosInstance from '../utils/getCards'
@@ -16,7 +17,7 @@ import axiosInstance_upload from '../utils/upload';
 import { useCounterStore } from '../stores/login_register';
 import { getOneCard } from '../utils/getCards';
 import type { carddata } from '../types/carddata';
-import defaultcard from '../components/defaultcard.vue';
+import defaultcard from '../components/Cards/defaultcard.vue';
 const starter =ref<carddata|null>(null)
 const dialog = useDialogStore();
 const toast = useToast();
@@ -345,11 +346,9 @@ const onScrollToBottom = () => {
         <defaultcard v-if="starter"
             :number="Number(route.query.number) || 0"
             :id="String(starter?.id || '')"
-            :time ="String(route.query.time || '')"
-            :index="0"
+            :time="String(route.query.time || '')"
             :content="String(starter?.content || '')"
             :thumbs="Number(starter.thumbs)"
-            :number_primary="String(route.query.number)"
             :imageUrls="starter.imageUrls" 
         >       
         </defaultcard>

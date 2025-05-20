@@ -11,6 +11,7 @@ export interface AddReplyCard { // Structure of a single reply card received fro
     id: string; // User ID of the replier
     content: string;
     time: string;
+    imageUrls: string[];
     reply?: string; // User ID being replied to, if any
     thumbs?: number;
     number_primary:string; // Optional, based on sendcard component props
@@ -23,5 +24,35 @@ skip?: number;
 
 export interface AddReplyCardResponse {
 data: AddReplyCard[];
+}
+
+// Assuming DefaultCard structure based on typical usage and backend model hints
+export interface DefaultCard {
+    id: string; 
+    content: string;
+    time: string;
+    number: number; 
+    category: string;
+    imageUrls: string[];
+  }
+  
+  export interface NewCardRequest {
+    category: string;
+  }
+  
+  export interface NewCardResponse {
+    data: DefaultCard | null;
+  }
+
+// 用户查看自己发表的帖子
+export interface UserCardRequest {
+    Cookie: string | null;
+    skip: number;
+}
+
+// 用户查看自己发表的帖子响应
+export interface UserCardResponse {
+    DefaultCard: DefaultCard[];
+    AddReplyCard: AddReplyCard[];
 }
 // --- End Interfaces for fetching replies ---

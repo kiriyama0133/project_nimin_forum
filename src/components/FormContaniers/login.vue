@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import loginform from '../components/loginform.vue';
+import loginform from '../Forms/loginform.vue';
 import gsap from "gsap";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 gsap.registerPlugin(MotionPathPlugin);

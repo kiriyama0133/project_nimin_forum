@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import subcltureheader from '../../components/subcltureheader.vue';
-import defaultcard from '../../components/defaultcard.vue';
-import axiosInstance from '../../utils/getCards'
-import axiosInstance_upload from '../../utils/upload'
-import {useCarddata} from '../../stores/carddata'
+import subcltureheader from '@/components/Headers/subcltureheader.vue';
+import defaultcard from '@/components/Cards/defaultcard.vue';
+import axiosInstance from '@/utils/getCards'
+import axiosInstance_upload from '@/utils/upload'
+import {useCarddata} from '@/stores/carddata'
 import { ref } from 'vue';
-import { isloading } from '../../stores/isloading';
-import type { SendTopic } from '../../types/sendTopic';
-import { useCounterStore } from '../../stores/login_register';
+import { isloading } from '@/stores/isloading';
+import type { SendTopic } from '@/types/sendTopic';
+import { useCounterStore } from '@/stores/login_register';
 // Import PrimeVue components
 import Dialog from 'primevue/dialog';
 import Textarea from 'primevue/textarea';

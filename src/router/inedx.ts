@@ -12,12 +12,12 @@ const router = createRouter({
     {
       path: '/login',
       name: '登录',
-      component: () => import('../views/login.vue'),
+      component: () => import('../components/FormContaniers/login.vue'),
     },
     {
       path: '/register',
       name: '注册',
-      component: () => import('../views/register.vue'),
+      component: () => import('../components/FormContaniers/register.vue'),
     },
     {
       path: '/homepage',
@@ -83,6 +83,11 @@ const router = createRouter({
           path: '/preferences',
           name: '偏好设置',
           component: PreferencesView
+        },
+        {
+          path: '/mycard',
+          name: '我的帖子',
+          component: () => import('../views/MyreplyPage.vue'),
         },
       ]
     },

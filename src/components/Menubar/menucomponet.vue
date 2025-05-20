@@ -2,10 +2,10 @@
 import { ref } from 'vue';
 import 'primeicons/primeicons.css';
 import Menu from 'primevue/menu';
-import axiosInstance from '../utils/getCards'
-import {useCarddata} from '../stores/carddata'
+import axiosInstance from '@/utils/getCards'
+import {useCarddata} from '@/stores/carddata'
 import { useRouter } from 'vue-router';
-import { getBackComfirm } from '../stores/backcomfirm';
+import { getBackComfirm } from '@/stores/backcomfirm';
 import { useToast } from "primevue/usetoast";
 import Dialog from 'primevue/dialog';
 import PanelMenu from 'primevue/panelmenu';
@@ -13,9 +13,9 @@ import InputText from 'primevue/inputtext';
 import FloatLabel from 'primevue/floatlabel';
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
-import axiosComfirm from '../utils/comfirm'
-import { isloading } from '../stores/isloading';
-import { useDrawerStore } from '../stores/drawer';
+import axiosComfirm from '../../utils/comfirm'
+import { isloading } from '../../stores/isloading';
+import { useDrawerStore } from '../../stores/drawer';
 const drawerStore = useDrawerStore();
 const getbackcomfirm = getBackComfirm()
 const cardstore = useCarddata()

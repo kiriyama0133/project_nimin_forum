@@ -68,10 +68,10 @@ import Button from 'primevue/button';
 import 'primeicons/primeicons.css';
 import ToggleButton from 'primevue/togglebutton';
 import Dialog from 'primevue/dialog';
-import { useDialogStore } from '../stores/dialog';
+import { useDialogStore } from '@/stores/dialog';
 import { onMounted,ref, defineProps } from 'vue';
-import {toggleLike} from '../utils/like';
-import axiosInstance from '../utils/likestatus';
+import {toggleLike} from '@/utils/like';
+import axiosInstance from '@/utils/likestatus';
 
 const IMAGE_BASE_URL = import.meta.env.VITE_API_URL + '/i/';
 
@@ -88,14 +88,14 @@ function refresh() {
 }
 
 const props = defineProps<{
+  number: string | number;
   id: string;
-  reply?: string;
   content: string;
-  index: number | string;
-  thumbs: number | string;
   time: string;
-  number: number | string;
+  index: string | number;
+  thumbs?: string | number | undefined;
   number_primary: string;
+  reply?: string;
   replyToNumberPrimary?: string;
   imageUrls?: string[];
 }>();
@@ -162,7 +162,7 @@ onMounted(() => {
   
 <style scoped>
 .defaultcard {
-  cursor: url('../assets/ani/select_2.png'), pointer;
+  cursor: url('@/assets/ani/select_2.png'), pointer;
 }
 
 .content-text {
