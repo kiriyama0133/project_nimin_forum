@@ -32,7 +32,7 @@
             </div>
             
             <div class ="flex justify-end h-5 items-center pr-2 pb-1">
-                <ToggleButton size="small" v-model="isfavorate" 
+                <ToggleButton size="small" v-model="isfavorite" 
                 @change="favorite()" onIcon="pi pi-star-fill" 
                 offIcon="pi pi-star" onLabel="已收藏" offLabel="收藏"/>
             </div>
@@ -58,12 +58,12 @@ import  'primeicons/primeicons.css'
 import ToggleButton from 'primevue/togglebutton';
 import Dialog from 'primevue/dialog';
 import { ref,onMounted } from 'vue'
-import { toggleFavorite } from '../utils/favorite';
-import axiosInstance from '../utils/favoritestatus';
+import { toggleFavorite } from '../../utils/favorite';
+import axiosInstance from '../../utils/favoritestatus';
 import { ca } from 'element-plus/es/locale/index.mjs';
 const IMAGE_BASE_URL = import.meta.env.VITE_API_URL + '/i/';
 const router = useRouter()
-const isfavorate = ref(false)
+const isfavorite = ref(false)
 const isImageModalVisible = ref(false);
 const currentModalImageUrl = ref('');
 const gotoreply = ()=>{
@@ -82,27 +82,28 @@ const openImageModal = (imageUrl: string) => {
 };
 
 const favorite =async ()=>{
-    const isNowfavorate = isfavorate.value
+    const isNowfavorate = isfavorite.value
     console.log(isNowfavorate)
     try{
         await toggleFavorite({ 
             card_number: Number(props.number),
-            action: isNowfavorate ? 'favorate' : 'unfavorate'
+            action: isNowfavorate ? 'favorite' : 'unfavorite'
         })
         console.log(isNowfavorate?'收藏成功':'取消收藏成功')
     }
     catch(error){
         console.error("收藏失败",error)
+        isfavorite.value=!isfavorite.value
     }
 }
 const checkfavorite =async()=>{
     try{
-        const response= await axiosInstance.get('/favoratestatus',{
+        const response= await axiosInstance.get('/favorite-status',{
             params:{
                 card_number: props.number
             }
         })
-        isfavorate.value = response.data.isfavorate
+        isfavorite.value = response.data.favorite
     }
     catch(error){
         console.error('获取收藏状态失败:',error)
