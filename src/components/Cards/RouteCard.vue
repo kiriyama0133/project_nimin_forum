@@ -7,7 +7,7 @@
                 <slot name="title">
                     <div class="flex gap-4 justify-between">
                         <div>
-                            <p class="Mate">No.{{ props.number }}</p>
+                            <p class="Mate">No.{{ props.number }}，分区：{{ props.category }}</p>
                             <p class="User_Id">{{ props.id }}</p>
                         </div>
                         <p class="Mate" style="font-size: xx-small;">{{ props.time }}</p>
@@ -56,6 +56,7 @@ const props = defineProps<{
     imageUrls?: string[];
     reply?: string;
     number_primary?: string;
+    category?: string;
 }>();
 
 import { useRouter } from 'vue-router';

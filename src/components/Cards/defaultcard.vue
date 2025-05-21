@@ -7,7 +7,7 @@
                 <slot name="title">
                     <div class="flex gap-4 justify-between">
                         <div>
-                            <p class="Mate">No.{{ props.number }}</p>
+                            <p class="Mate">No.{{ props.number }} {{ categoryDisplay ? `${categoryDisplay}` : '' }}</p>
                             <p class="User_Id">{{ props.id }}</p>
                         </div>
                             <p class="Mate" style="font-size: xx-small;">{{ props.time }}</p>
@@ -44,20 +44,85 @@
     </Dialog>
 </template>
 <script lang="ts" setup>
-const props = defineProps<{ 
-    number: string | number;
-    id: string;
-    content: string;
-    time: string;
-    thumbs?: string | number;
-    imageUrls?: string[]; 
-}>();
-
 import { useRouter } from 'vue-router';
 import  'primeicons/primeicons.css'
 import ToggleButton from 'primevue/togglebutton';
 import Dialog from 'primevue/dialog';
-import { ref,onMounted } from 'vue'
+import { ref, computed,onMounted } from 'vue'
+
+const props = defineProps<{
+    number: number;
+    id: string;
+    content: string;
+    time: string;
+    imageUrls: string[];
+    category?: string;
+    thumbs?: number;
+}>();
+
+// 分类映射表
+const categoryMap = {
+    // 综合版和时间板
+    'total': '综合版',
+    'time': '时间板',
+    
+    // 亚文化
+    'brahmin': '婆罗门',
+    'anime': '动漫',
+    'movie_tv': '电影/电视剧',
+    'vtuber': 'vtuber',
+    'boardgame': '卡牌桌游',
+    'tokusatsu': '特摄',
+    'warhammer': '战锤',
+    'modelkit': '胶佬',
+    'railfan': '铁道厨',
+    'vocaloid': 'VOCALOID',
+    'touhou': '东方project',
+    'kancolle': '舰娘',
+    
+    // 创作
+    'trpg': '跑团',
+    'creation': '创作',
+    'creepypasta': '规则怪谈',
+    'situation_puzzle': '海龟汤',
+    'science': '科学',
+    'literature': '文学',
+    'music': '音乐',
+    'ai': 'AI',
+    'photography': '摄影',
+    
+    // 游戏
+    'game_general': '游戏综合',
+    'mobile_game': '手游',
+    'nintendo': '任天堂',
+    'galgame': 'Galgame',
+    'blizzard': '暴雪游戏',
+    'square_enix': 'SE',
+    'valve': 'V社',
+    'monster_hunter': '怪物猎人',
+    'hypergryph': '鹰角',
+    'mihoyo': '米哈游',
+    'rhythm_game': '音游',
+    'tencent_game': '腾讯游戏',
+    
+    // 生活
+    'camping': '露营',
+    'self_help': '自救互助',
+    'cooking': '料理',
+    'sports': '体育',
+    'study': '学业',
+    'diary': '日记',
+    
+    // 其他
+    'other': '其他'
+} as const;
+
+// 计算属性：获取分类显示名称
+const categoryDisplay = computed(() => {
+    if (!props.category) return '';
+    return categoryMap[props.category as keyof typeof categoryMap] || props.category;
+});
+
 import { toggleFavorite } from '../../utils/favorite';
 import axiosInstance from '../../utils/favoritestatus';
 import { ca } from 'element-plus/es/locale/index.mjs';
