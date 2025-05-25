@@ -1,9 +1,9 @@
 <template>
 <div class=" rounded-lg">
-    <div class="defaultcard bg-gray-300 rounded-lg shadow-lg transition-all 
+    <div class="defaultcard bg-gray-200 rounded-lg shadow-lg transition-all 
         duration-500 transform hover:shadow-2xl hover:-translate-y-2 ">
-        <div  @click="gotoreply" class="p-4">
-            <h2 class="text-lg  text-gray-800 mb-4">
+        <div  @click="gotoreply" class="p-4 ">
+            <h2 class="text-lg text-gray-800 mb-4">
                 <slot name="title">
                     <div class="flex gap-4 justify-between">
                         <div>
@@ -174,5 +174,8 @@ cursor: url('@/assets/ani/link_2.png'), pointer;
 .User_Id {
   font-weight: inherit;
   transition: color 0.2s ease;
+}
+:root.darkmode .defaultcard{
+    background-color: #01012b;
 }
 </style>

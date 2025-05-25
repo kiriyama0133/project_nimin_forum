@@ -1,6 +1,6 @@
 <template>
     <div class="rounded-lg">
-      <div :id="`card-${props.number_primary}`" class="defaultcard rounded-lg shadow-lg  bg-gray-300 
+      <div :id="`card-${props.number_primary}`" class="defaultcard bg-gray-200 rounded-lg shadow-lg
       transition-all duration-200 transform hover:shadow-2xl hover:-translate-y-2">
         <div class="p-4">
           <h2 class="text-lg mb-3">
@@ -197,6 +197,9 @@ onMounted(() => {
   100% {
     background-color: transparent;
   }
+}
+:root.darkmode .defaultcard{
+  background-color: #01012b;
 }
 </style>
   

@@ -143,7 +143,7 @@ const setActiveCookie = async (selectedCookie: CookieInfo) => {
 </script>
 
 <template>
-  <div class="p-4 md:p-6 lg:p-8 bg-gray-100 min-h-screen">
+  <div class="cookies-page p-4 md:p-6 lg:p-8 bg-gray-100 min-h-screen">
     <div class="max-w-screen-xl mx-auto">
       <h1 class="text-3xl font-bold mb-8 text-center text-gray-700">饼干管理中心</h1>
 
@@ -207,5 +207,8 @@ const setActiveCookie = async (selectedCookie: CookieInfo) => {
 <style scoped>
 .p-card .p-card-title {
   font-size: 1.25rem;
+}
+:root.darkmode .cookies-page{
+  background-color: #020225;
 }
 </style>

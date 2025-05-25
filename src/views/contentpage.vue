@@ -173,7 +173,7 @@ async function send(){
 
     try {
       console.log(`开始上传 ${selectedReplyFiles.value.length} 张回复图片...`);
-      const imageResponse = await axiosInstance_upload.post('/upload-images', formData, { // Replace with correct axios instance if needed
+      const imageResponse = await axiosInstance_upload.post('/upload-image', formData, { // Replace with correct axios instance if needed
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);

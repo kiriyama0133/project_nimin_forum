@@ -341,13 +341,13 @@ const items = ref([
 ]);
 </script>
 <template>
-<Menu class="w-40 overflow-x-hidden">
+<Menu class="w-60 overflow-x-hidden bg-gray-200">
     <template #start> 
         <div class="card flex justify-center">
-            <PanelMenu :model="items" class="w-full md:w-80 font-mono font-bold" />
+            <PanelMenu :model="items" class="w-full md:w- font-mono font-bold"/>
         </div>
     </template>
-</Menu> 
+</Menu>
 <Dialog v-model:visible="visible" modal header="联系管理员" class="justyfy-content-center h-150">
     <span class="text-surface-500 dark:text-surface-400 block mb-8 ">提交你的建议和报告bug</span>
     <div class=" card flex items-center gap-4 mb-4">
@@ -370,4 +370,7 @@ const items = ref([
 <div class="h-12"></div>
 </template>
 <style scoped>
+.PanelMenu-sub-class{
+    background-color: inherit;
+}
 </style>

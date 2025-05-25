@@ -69,11 +69,11 @@ import FloatLabel from 'primevue/floatlabel';
 import ProgressBar from 'primevue/progressbar';
 import { useToast } from "primevue/usetoast";
 import axiosInstance from '@/utils/getCards';
-import axiosInstance_upload from '@/utils/upload';
 import type { SendTopic } from '@/types/sendTopic';
 import { useCounterStore } from '@/stores/login_register';
 import { useKeyboardPaste } from '@/composables/useKeyboardPaste'
 import { useEventListener } from '@vueuse/core'
+import { uploadImages } from '@/utils/upload';
 
 const props = defineProps<{
     modelValue: boolean;
@@ -199,28 +199,16 @@ const handleImageUpload = async () => {
     isUploading.value = true;
     uploadProgress.value = 0;
 
-    const formData = new FormData();
-    for (const file of selectedFiles.value) {
-        formData.append('imageFiles', file);
-    }
-
     try {
-        const imageResponse = await axiosInstance_upload.post('/upload-images', formData, {
-            onUploadProgress: (progressEvent) => {
-                if (progressEvent.total) {
-                    uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                }
-            }
-        });
-
-        if (imageResponse.data && imageResponse.data.message) {
-            toast.add({ severity: 'success', summary: '图片处理成功', detail: imageResponse.data.message, life: 3000 });
-            await sendTopicWithImages(imageResponse.data.data);
-        } else {
-            throw new Error('图片上传响应格式不符合预期');
-        }
+        const imageUrls = await uploadImages(selectedFiles.value);
+        toast.add({ severity: 'success', summary: '图片处理成功', detail: '图片上传成功', life: 3000 });
+        await sendTopicWithImages(imageUrls);
     } catch (error: any) {
         handleUploadError(error);
+        // Reset upload state
+        isUploading.value = false;
+        uploadProgress.value = 0;
+        return; // Prevent sending topic when image upload fails
     }
 };
 

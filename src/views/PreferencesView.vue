@@ -4,7 +4,6 @@ import FontSettings from '@/components/Preferences/FontSettings.vue';
 import ThemeSettings from '@/components/Preferences/ThemeSettings.vue';
 import NotificationSettings from '@/components/Preferences/NotificationSettings.vue';
 import PrivacySettings from '@/components/Preferences/PrivacySettings.vue';
-
 const activeTab = ref('font');
 </script>
 
