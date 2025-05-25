@@ -20,6 +20,18 @@ const router = createRouter({
       component: () => import('../components/FormContaniers/register.vue'),
     },
     {
+    path: '/favoritepage',
+      name: '收藏界面',
+      component: () => import('../views/favoritepage.vue'),
+      children: [
+        {
+          path: '/favorite',
+          name: '收藏',
+          component: () => import('../views/pages/favorite.vue'), 
+        },
+      ]
+    },
+    {
       path: '/homepage',
       name: '主界面',
       component: () => import('../views/homepage.vue'),
@@ -44,6 +56,7 @@ const router = createRouter({
           name: '综合',
           component: () => import('../views/pages/total.vue'),
         },
+        
         {
           path: '/subculture',
           name: '亚文化',
@@ -68,11 +81,6 @@ const router = createRouter({
           path: '/settings',
           name: '设置',
           component: () => import('../views/settings.vue'), 
-        },
-        {
-          path: '/favorate',
-          name: '收藏',
-          component: () => import('../views/favorate.vue'), 
         },
         {
           path: '/cookies',

@@ -15,12 +15,47 @@ import type { UserCardRequest, UserCardResponse } from '@/types/sendcard.d';
 import { useCounterStore } from '@/stores/login_register';
 import { getUserCard } from '@/utils/getCards';
 import { useCarddata } from '@/stores/carddata';
+import { isloading } from '@/stores/isloading';
+import axiosInstance from '@/utils/getCards'
+const isloadingstore = isloading();
 const store = useCounterStore();
 const router = useRouter()
 const route = useRoute()
 const cardstore = useCarddata();
+import { useToast } from "primevue/usetoast";
+const toast = useToast();
+let dataloading = ref(false);
 // 获取当前URL
 let currentUrl = ref(window.location.href);
+function refresh(path: string, api: string) {
+    console.log(`路径: ${path}, API: ${api}`);
+    cardstore.carddata.splice(0, cardstore.carddata.length); // 清空列表
+    isloadingstore.dataloading = true; // This can remain if used for other global state
+    dataloading.value = true; // Controls the spinner
+    //console.log("当前的分类是：",cardstore.category)
+    isloadingstore.dataend = false;
+    //第一次加载内容
+    axiosInstance.post(api, { skip: 0}).then((response) => {
+        const receivedCards = response.data.data;
+        if (receivedCards && Array.isArray(receivedCards)) {
+            cardstore.carddata.push(...receivedCards);
+            console.log(`的初始卡片数据已加载:`, cardstore.carddata);
+            if (receivedCards.length < 5) {
+                console.log("卡片数据不足5条，已设置为已结束。")
+                isloadingstore.dataend = true;
+            }
+        } else {
+            console.warn(`返回的初始卡片数据无效或为空:`, receivedCards);
+            // Handle case where category might have no cards initially
+        }
+    }).catch(error => {
+        console.error(`从 ${api} 刷新初始数据失败:`, error);
+        toast.add({ severity: "error", summary: "错误", detail: "加载初始数据失败", life: 3000 });
+    }).finally(() => {
+        dataloading.value = false; // Hide spinner
+        // cardstore.initialLoading = false; // Reset loading state if used
+    });
+}
 // 监听路由变化
 watch(
   () => route.fullPath,
@@ -125,7 +160,7 @@ const showFontSettings = ref(false);
                                     label="我的回复"  icon="pi pi-reply" @click="UserCard"/>
                                     <Button variant="outlined"  raised style="font-size: 16px;" 
                                     class="text w-30 h-8" label="我的收藏" 
-                                    icon="pi pi-star" @click="router.push('/favorate')" />
+                                    icon="pi pi-star" @click="refresh('/favorite','/getfavoritecard'),router.push('/favorite')" />
                                     <Button variant="outlined" 
                                     raised style="font-size: 16px;" class="text w-30 h-8" 
                                     label="偏好设置" icon="pi pi-cog" @click="router.push('/preferences')" />
